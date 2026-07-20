@@ -44,6 +44,7 @@ import {
   CrystalHero,
   ParticleEngine,
   ProjectileSystem,
+  FingertipBridgeRenderer,
   Hero
 } from "../services/HeroEngine";
 
@@ -965,8 +966,22 @@ export default function Home() {
             
             // Render active visual triggers in world space at heroMidpoint
             if (heroMidpoint) {
-              if (chargeLevelRef.current < 0.15 && bothHandsVisible) {
+              if (bothHandsVisible && p.hand.leftHandLandmarks && p.hand.rightHandLandmarks) {
+                FingertipBridgeRenderer.renderBridges(
+                  ctx,
+                  p.hand.leftHandLandmarks,
+                  p.hand.rightHandLandmarks,
+                  heroMidpoint,
+                  particleEngineRef.current,
+                  rect.width,
+                  rect.height,
+                  chargeLevelRef.current
+                );
+              }
+
+              if (chargeLevelRef.current >= 0.95) {
                 activeHeroRef.current.playSummoning(ctx, heroMidpoint, particleEngineRef.current, particleDt, rect.width, rect.height);
+                activeHeroRef.current.playCharge(ctx, heroMidpoint, particleEngineRef.current, chargeLevelRef.current, particleDt, heroHandDist);
               } else if (chargeLevelRef.current < 0.15) {
                 activeHeroRef.current.playIdle(ctx, heroMidpoint, particleEngineRef.current, particleDt);
               } else {

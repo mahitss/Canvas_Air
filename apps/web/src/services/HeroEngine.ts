@@ -23,7 +23,7 @@ export interface Projectile {
   vy: number;
   color: string;
   size: number;
-  type: string; // galaxy, lightning, fire, ice, water, wind, solar, lunar, crystal
+  type: string;
   life: number;
   maxLife: number;
   angle: number;
@@ -45,7 +45,7 @@ export interface Impact {
 export class ParticleEngine {
   private pool: Particle[] = [];
   private activeParticles: Particle[] = [];
-  private maxParticles = 2200;
+  private maxParticles = 2500;
 
   constructor() {
     for (let i = 0; i < this.maxParticles; i++) {
@@ -120,7 +120,7 @@ export class ParticleEngine {
         p.y += p.vy;
       } else if (p.type === "spiral" && p.angle !== undefined && p.orbitRadius !== undefined) {
         p.angle += extraAngleSpeed(p.color) * dt;
-        p.orbitRadius = Math.max(2, p.orbitRadius - 110 * dt);
+        p.orbitRadius = Math.max(2, p.orbitRadius - 120 * dt);
         const cx = p.vx;
         const cy = p.vy;
         p.x = cx + Math.cos(p.angle) * p.orbitRadius;
@@ -182,7 +182,116 @@ function extraAngleSpeed(color: string): number {
   return color.includes("cyan") ? 6.0 : 4.0;
 }
 
-// 2. Base Class for Elemental Heroes
+// 2. PHASE 1: Fingertip Energy Bridge System (Non-crossing, matching colors)
+export class FingertipBridgeRenderer {
+  static FINGER_COLORS = {
+    thumb: "#ef4444",  // Red
+    index: "#3b82f6",  // Blue
+    middle: "#a855f7", // Purple
+    ring: "#eab308",   // Gold
+    pinky: "#22c55e"   // Green
+  };
+
+  static renderBridges(
+    ctx: CanvasRenderingContext2D,
+    leftLandmarks: any[] | null,
+    rightLandmarks: any[] | null,
+    centerCore: { x: number; y: number },
+    engine: ParticleEngine,
+    width: number,
+    height: number,
+    chargeLevel: number
+  ) {
+    if (!leftLandmarks || !rightLandmarks) return;
+
+    const fingerIndices = [
+      { name: "thumb" as const, idx: 4, color: FingertipBridgeRenderer.FINGER_COLORS.thumb },
+      { name: "index" as const, idx: 8, color: FingertipBridgeRenderer.FINGER_COLORS.index },
+      { name: "middle" as const, idx: 12, color: FingertipBridgeRenderer.FINGER_COLORS.middle },
+      { name: "ring" as const, idx: 16, color: FingertipBridgeRenderer.FINGER_COLORS.ring },
+      { name: "pinky" as const, idx: 20, color: FingertipBridgeRenderer.FINGER_COLORS.pinky }
+    ];
+
+    const time = performance.now() * 0.003;
+
+    fingerIndices.forEach((finger) => {
+      const leftLm = leftLandmarks[finger.idx];
+      const rightLm = rightLandmarks[finger.idx];
+
+      if (!leftLm || !rightLm) return;
+
+      const p1 = { x: leftLm.x * width, y: leftLm.y * height };
+      const p2 = { x: rightLm.x * width, y: rightLm.y * height };
+
+      // 1. Draw glowing fingertip energy spheres
+      [p1, p2].forEach((pt) => {
+        ctx.save();
+        ctx.shadowBlur = 16;
+        ctx.shadowColor = finger.color;
+        ctx.fillStyle = finger.color;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 6.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      // 2. Draw pulsating energy bridge cable connecting matching fingertips
+      ctx.save();
+      ctx.globalCompositeOperation = "screen";
+      ctx.shadowBlur = 18;
+      ctx.shadowColor = finger.color;
+      ctx.strokeStyle = finger.color;
+      ctx.lineWidth = 2.5 + Math.sin(time * 6 + finger.idx) * 0.8;
+
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+
+      const steps = 8;
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      for (let s = 1; s < steps; s++) {
+        const t = s / steps;
+        const perpX = -dy / (dist || 1);
+        const perpY = dx / (dist || 1);
+        const offset = Math.sin(t * Math.PI * 3 + time * 10) * (6 + chargeLevel * 8);
+
+        const interpX = p1.x + dx * t + perpX * offset;
+        const interpY = p1.y + dy * t + perpY * offset;
+        ctx.lineTo(interpX, interpY);
+      }
+
+      ctx.lineTo(p2.x, p2.y);
+      ctx.stroke();
+
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 1.0;
+      ctx.stroke();
+      ctx.restore();
+
+      // 3. Flow energy particles along bridge toward center core
+      if (Math.random() < 0.65) {
+        const sourcePt = Math.random() < 0.5 ? p1 : p2;
+        const t = Math.random();
+        const startX = sourcePt.x + (centerCore.x - sourcePt.x) * t;
+        const startY = sourcePt.y + (centerCore.y - sourcePt.y) * t;
+
+        const vx = (centerCore.x - startX) * 0.08;
+        const vy = (centerCore.y - startY) * 0.08;
+
+        engine.spawn(startX, startY, vx, vy, finger.color, 1.8 + Math.random() * 1.5, 400 + Math.random() * 200, "dust");
+      }
+    });
+  }
+}
+
+// 3. Base Class for Elemental Heroes
 export abstract class Hero {
   abstract name: string;
   abstract icon: string;
@@ -193,10 +302,41 @@ export abstract class Hero {
   abstract playCharge(ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, charge: number, dt: number, handDistance?: number): void;
   abstract playImpact(engine: ParticleEngine, x: number, y: number): void;
 
-  playSummoning(_ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, _dt: number, width?: number, height?: number) {
+  playSummoning(ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, _dt: number, width?: number, height?: number) {
     const w = width || 1280;
     const h = height || 720;
-    for (let i = 0; i < 5; i++) {
+
+    // PHASE 3: SUMMONING - Cinematic Expanding Magical Rings & Cosmic Rays
+    ctx.save();
+    ctx.globalCompositeOperation = "screen";
+    ctx.strokeStyle = this.baseColor;
+    ctx.shadowBlur = 25;
+    ctx.shadowColor = this.baseColor;
+
+    const time = performance.now() * 0.002;
+    for (let r = 1; r <= 3; r++) {
+      const ringRadius = (35 * r) + Math.sin(time * 3 + r) * 12;
+      ctx.lineWidth = 2.0 / r;
+      ctx.beginPath();
+      ctx.arc(center.x, center.y, ringRadius, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // Light rays burst
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 1.5;
+    for (let ray = 0; ray < 8; ray++) {
+      const rayAngle = (ray / 8) * Math.PI * 2 + time;
+      const len = 90 + Math.sin(time * 5 + ray) * 25;
+      ctx.beginPath();
+      ctx.moveTo(center.x, center.y);
+      ctx.lineTo(center.x + Math.cos(rayAngle) * len, center.y + Math.sin(rayAngle) * len);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+
+    for (let i = 0; i < 6; i++) {
       const angle = Math.random() * Math.PI * 2;
       const spawnDist = Math.max(w, h) * 0.42;
       const startX = center.x + Math.cos(angle) * spawnDist;
@@ -207,7 +347,7 @@ export abstract class Hero {
         startX, startY,
         center.x, center.y,
         color,
-        1.5 + Math.random() * 2.5,
+        2.0 + Math.random() * 2.5,
         700 + Math.random() * 300,
         "spiral",
         { angle, orbitRadius: spawnDist }
@@ -821,7 +961,7 @@ export class CrystalHero extends Hero {
   }
 }
 
-// 3. Projectile & Impact System manager
+// 4. Projectile & Impact System manager
 export class ProjectileSystem {
   private projectiles: Projectile[] = [];
   private impacts: Impact[] = [];
@@ -835,7 +975,7 @@ export class ProjectileSystem {
       vx,
       vy,
       color,
-      size: 20,
+      size: 24,
       type,
       life: 2500,
       maxLife: 2500,
