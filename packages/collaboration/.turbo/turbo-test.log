@@ -1,0 +1,22 @@
+
+> @visioncanvas/collaboration@1.0.0 test C:\Users\pc\OneDrive\Desktop\Air canvas\packages\collaboration
+> vitest run
+
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/pc/OneDrive/Desktop/Air canvas/packages/collaboration[39m
+
+[90mstdout[2m | tests/sync_crdt_resolver.test.ts[2m > [22m[2mCRDT & Synchronization Engine Integration[2m > [22m[2mshould benchmark CRDT throughput and run compression comparisons[22m[39m
+[CRDT Benchmark] Applied 5,000 concurrent updates in 10ms
+[Sync Compression] Raw JSON size: 750006 bytes, Compressed size: 600006 bytes (Ratio: 80.0%)
+
+ [32m✓[39m tests/sync_crdt_resolver.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 119[2mms[22m[39m
+ [32m✓[39m tests/monitoring_optimizations.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 39[2mms[22m[39m
+ [32m✓[39m tests/comprehensive_collaboration.test.ts [2m ([22m[2m5 tests[22m[2m)[22m[90m 18[2mms[22m[39m
+ [32m✓[39m tests/session_presence.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 15[2mms[22m[39m
+ [32m✓[39m tests/collaboration.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 94[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+[2m   Start at [22m 03:12:35
+[2m   Duration [22m 8.84s[2m (transform 15.92s, setup 0ms, collect 20.43s, tests 285ms, environment 2ms, prepare 5.94s)[22m
+

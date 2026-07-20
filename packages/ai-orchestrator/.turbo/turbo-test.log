@@ -1,0 +1,48 @@
+
+> @visioncanvas/ai-orchestrator@1.0.0 test C:\Users\pc\OneDrive\Desktop\Air canvas\packages\ai-orchestrator
+> vitest run
+
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/pc/OneDrive/Desktop/Air canvas/packages/ai-orchestrator[39m
+
+ [32m✓[39m tests/registry.test.ts [2m ([22m[2m1 test[22m[2m)[22m[90m 28[2mms[22m[39m
+[90mstdout[2m | tests/model_manager.test.ts[2m > [22m[2mAiModelManager Specific Target Config & Routing Tests[2m > [22m[2mshould run primary model completions and failover to fallback model on primary crashes[22m[39m
+[AiModelManager] Selected model google/gemma-3-27b-it:free for task type "chat"
+[AiModelManager] Selected model deepseek/deepseek-r1:free for task type "reasoning"
+[90mstderr[2m | tests/model_manager.test.ts[2m > [22m[2mAiModelManager Specific Target Config & Routing Tests[2m > [22m[2mshould run primary model completions and failover to fallback model on primary crashes[22m[39m
+[AiModelManager] Model google/gemma-3-27b-it:free failed: Endpoint error on primary model google/gemma-3-27b-it:free. Retrying fallback...
+
+[AiModelManager] Selected model google/gemma-3-27b-it:free for task type "chat"
+[AiModelManager] Selected model meta-llama/llama-3.3-70b-instruct:free for task type "chat"
+
+ [32m✓[39m tests/model_manager.test.ts [2m ([22m[2m5 tests[22m[2m)[22m[90m 30[2mms[22m[39m
+ [32m✓[39m tests/retry_pipeline.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 18[2mms[22m[39m
+[90mstderr[2m | tests/monitoring_events.test.ts[2m > [22m[2mAI Event Bus[2m > [22m[2mshould publish events with strong types, support wildcard subscribers, isolate exceptions, and support history replays[22m[39m
+[AiEventBusError] Subscriber threw exception during callback: Error: Isolated subscriber crash!
+    at [90mC:\Users\pc\OneDrive\Desktop\Air canvas\packages\ai-orchestrator\[39mtests\monitoring_events.test.ts:33:13
+    at AiOrchestratorEventBus.safeExecute [90m(C:\Users\pc\OneDrive\Desktop\Air canvas\packages\ai-orchestrator\[39msrc\events\bus.ts:83:7[90m)[39m
+    at AiOrchestratorEventBus.publish [90m(C:\Users\pc\OneDrive\Desktop\Air canvas\packages\ai-orchestrator\[39msrc\events\bus.ts:24:16[90m)[39m
+    at [90mC:\Users\pc\OneDrive\Desktop\Air canvas\packages\ai-orchestrator\[39mtests\monitoring_events.test.ts:36:9
+    at file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+runner@1.6.1/node_modules/[4m@vitest/runner[24m/dist/index.js:135:14
+    at file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+runner@1.6.1/node_modules/[4m@vitest/runner[24m/dist/index.js:60:26
+    at runTest (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+runner@1.6.1/node_modules/[4m@vitest/runner[24m/dist/index.js:781:17)
+    at runSuite (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+runner@1.6.1/node_modules/[4m@vitest/runner[24m/dist/index.js:909:15)
+    at runSuite (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+runner@1.6.1/node_modules/[4m@vitest/runner[24m/dist/index.js:909:15)
+    at runFiles (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+runner@1.6.1/node_modules/[4m@vitest/runner[24m/dist/index.js:958:5)
+
+ [32m✓[39m tests/monitoring_events.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 63[2mms[22m[39m
+ [32m✓[39m tests/architecture.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 11[2mms[22m[39m
+ [32m✓[39m tests/orchestrator.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 22[2mms[22m[39m
+ [32m✓[39m tests/router_loadbalancer.test.ts [2m ([22m[2m1 test[22m[2m)[22m[90m 162[2mms[22m[39m
+ [32m✓[39m tests/scheduler.test.ts [2m ([22m[2m1 test[22m[2m)[22m[90m 202[2mms[22m[39m
+[90mstdout[2m | tests/integration_benchmarks.test.ts[2m > [22m[2mAI Scheduler Benchmarks[2m > [22m[2mshould handle heavy concurrent workload under low latency scheduling and reuse cached lookups[22m[39m
+[Benchmark] Enqueued 1000 tasks in 33ms. Average: 0.033ms/task
+[Benchmark] Completed 1000 concurrent tasks in 148ms.
+
+ [32m✓[39m tests/integration_benchmarks.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 214[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m9 passed[39m[22m[90m (9)[39m
+[2m      Tests [22m [1m[32m19 passed[39m[22m[90m (19)[39m
+[2m   Start at [22m 13:39:41
+[2m   Duration [22m 15.74s[2m (transform 15.32s, setup 2ms, collect 20.35s, tests 750ms, environment 15ms, prepare 33.47s)[22m
+

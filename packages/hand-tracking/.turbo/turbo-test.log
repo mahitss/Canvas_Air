@@ -1,0 +1,26 @@
+
+> @visioncanvas/hand-tracking@1.0.0 test C:\Users\pc\OneDrive\Desktop\Air canvas\packages\hand-tracking
+> vitest run
+
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/pc/OneDrive/Desktop/Air canvas/packages/hand-tracking[39m
+
+ [32m✓[39m tests/extractor.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 21[2mms[22m[39m
+ [32m✓[39m tests/engine-optimization.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 75[2mms[22m[39m
+ [32m✓[39m tests/event-bus.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 19[2mms[22m[39m
+ [32m✓[39m tests/integration.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 118[2mms[22m[39m
+ [32m✓[39m tests/smoother.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 7[2mms[22m[39m
+ [32m✓[39m tests/tracker.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 103[2mms[22m[39m
+ [32m✓[39m tests/benchmark.test.ts [2m ([22m[2m1 test[22m[2m)[22m[33m 544[2mms[22m[39m
+[90mstdout[2m | tests/benchmark.test.ts[2m > [22m[2mHand Landmark Smoother Performance Benchmarks[2m > [22m[2mshould benchmark smoothing loop execution time and memory throughput[22m[39m
+[BENCHMARK] Total time for 10000 frames: 449.37ms
+[BENCHMARK] Average latency per frame: 44.937 microseconds
+
+ [32m✓[39m tests/mediapipe.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 26[2mms[22m[39m
+ [32m✓[39m tests/hand-tracking.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 17[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m9 passed[39m[22m[90m (9)[39m
+[2m      Tests [22m [1m[32m25 passed[39m[22m[90m (25)[39m
+[2m   Start at [22m 13:39:59
+[2m   Duration [22m 9.77s[2m (transform 10.22s, setup 8ms, collect 13.25s, tests 930ms, environment 4ms, prepare 14.40s)[22m
+

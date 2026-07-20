@@ -1,0 +1,35 @@
+
+> @visioncanvas/vfx@1.0.0 test C:\Users\pc\OneDrive\Desktop\Air canvas\packages\vfx
+> vitest run
+
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/pc/OneDrive/Desktop/Air canvas/packages/vfx[39m
+
+ [32m✓[39m tests/vfx_engine.test.ts [2m ([22m[2m8 tests[22m[2m)[22m[90m 47[2mms[22m[39m
+[90mstderr[2m | tests/vfx.test.ts[2m > [22m[2mVfxEventBus PubSub[2m > [22m[2mshould dispatch events, support wildcards, isolate exceptions, and replay past events[22m[39m
+[VfxEventBusError] Subscriber threw exception during callback: Error: Subscriber failed!
+    at [90mC:\Users\pc\OneDrive\Desktop\Air canvas\packages\vfx\[39mtests\vfx.test.ts:336:13
+    at VfxEventBus.safeExecute [90m(C:\Users\pc\OneDrive\Desktop\Air canvas\packages\vfx\[39msrc\events\bus.ts:82:7[90m)[39m
+    at VfxEventBus.publish [90m(C:\Users\pc\OneDrive\Desktop\Air canvas\packages\vfx\[39msrc\events\bus.ts:23:16[90m)[39m
+    at [90mC:\Users\pc\OneDrive\Desktop\Air canvas\packages\vfx\[39mtests\vfx.test.ts:351:22
+    at Proxy.assertThrows (C:\Users\pc\OneDrive\Desktop\Air canvas\node_modules\[4m.pnpm[24m\chai@4.5.0\node_modules\[4mchai[24m\lib\chai\core\assertions.js:2644:7)
+    at Proxy.methodWrapper (C:\Users\pc\OneDrive\Desktop\Air canvas\node_modules\[4m.pnpm[24m\chai@4.5.0\node_modules\[4mchai[24m\lib\chai\utils\addMethod.js:57:25)
+    at Proxy.<anonymous> (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+expect@1.6.1/node_modules/[4m@vitest/expect[24m/dist/index.js:850:16)
+    at Proxy.overwritingMethodWrapper (C:\Users\pc\OneDrive\Desktop\Air canvas\node_modules\[4m.pnpm[24m\chai@4.5.0\node_modules\[4mchai[24m\lib\chai\utils\overwriteMethod.js:78:33)
+    at Proxy.<anonymous> (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+expect@1.6.1/node_modules/[4m@vitest/expect[24m/dist/index.js:1324:19)
+    at Proxy.<anonymous> (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+expect@1.6.1/node_modules/[4m@vitest/expect[24m/dist/index.js:800:17)
+
+ [32m✓[39m tests/vfx.test.ts [2m ([22m[2m10 tests[22m[2m)[22m[90m 58[2mms[22m[39m
+[90mstdout[2m | tests/vfx_benchmarks.test.ts[2m > [22m[2mVFX Performance & Adaptive LOD Benchmarks[2m > [22m[2mshould dynamically scale down computations and particle counts when under load[22m[39m
+[VFX LOD Performance Benchmark]
+- High LOD active particles: 60, simulation time: 60.1028ms
+- Low LOD active particles: 15, simulation time: 1.9975ms
+
+ [32m✓[39m tests/vfx_benchmarks.test.ts [2m ([22m[2m1 test[22m[2m)[22m[90m 79[2mms[22m[39m
+ [32m✓[39m tests/architecture.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 36[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[32m21 passed[39m[22m[90m (21)[39m
+[2m   Start at [22m 13:39:39
+[2m   Duration [22m 16.13s[2m (transform 10.77s, setup 4ms, collect 15.03s, tests 220ms, environment 44ms, prepare 20.67s)[22m
+

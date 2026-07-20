@@ -1,0 +1,5 @@
+# Classifiers package initialization
+from app.services.gesture_recognition.classifiers.base import BaseGestureClassifier
+from app.services.gesture_recognition.classifiers.static import StaticGestureClassifier
+from app.services.gesture_recognition.classifiers.dynamic import DynamicGestureClassifier
+from app.services.gesture_recognition.classifiers.multihand import MultiHandGestureClassifier

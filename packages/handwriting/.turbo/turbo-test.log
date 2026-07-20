@@ -1,0 +1,40 @@
+
+> @visioncanvas/handwriting@1.0.0 test C:\Users\pc\OneDrive\Desktop\Air canvas\packages\handwriting
+> vitest run
+
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/pc/OneDrive/Desktop/Air canvas/packages/handwriting[39m
+
+ [32m✓[39m tests/segmenter.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 67[2mms[22m[39m
+ [32m✓[39m tests/integration.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 86[2mms[22m[39m
+[90mstdout[2m | tests/optimizations.test.ts[2m > [22m[2mHandwriting Recognition Engine Optimizations[2m > [22m[2mshould apply adaptive point simplification on dense strokes to reduce points count[22m[39m
+[BENCHMARK] Recognized 200-point dense stroke in 3.245ms
+
+ [32m✓[39m tests/optimizations.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 112[2mms[22m[39m
+ [32m✓[39m tests/providers.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 100[2mms[22m[39m
+ [32m✓[39m tests/language.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 20[2mms[22m[39m
+[90mstderr[2m | tests/events.test.ts[2m > [22m[2mHandwriting Recognition Event Bus[2m > [22m[2mshould isolate subscriber execution crashes gracefully without blocking other listeners[22m[39m
+[HandwritingEventBusError] Dispatch callback execution failed: Error: Crash
+    at Object.<anonymous> [90m(C:\Users\pc\OneDrive\Desktop\Air canvas\packages\handwriting\[39mtests\events.test.ts:62:13[90m)[39m
+    at Object.mockCall (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+spy@1.6.1/node_modules/[4m@vitest/spy[24m/dist/index.js:50:17)
+    at Object.spy [as callback] (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/tinyspy@2.2.1/node_modules/[4mtinyspy[24m/dist/index.js:42:80)
+    at HandwritingEventBus.publish [90m(C:\Users\pc\OneDrive\Desktop\Air canvas\packages\handwriting\[39msrc\events\bus.ts:39:15[90m)[39m
+    at [90mC:\Users\pc\OneDrive\Desktop\Air canvas\packages\handwriting\[39mtests\events.test.ts:76:22
+    at Proxy.assertThrows (C:\Users\pc\OneDrive\Desktop\Air canvas\node_modules\[4m.pnpm[24m\chai@4.5.0\node_modules\[4mchai[24m\lib\chai\core\assertions.js:2644:7)
+    at Proxy.methodWrapper (C:\Users\pc\OneDrive\Desktop\Air canvas\node_modules\[4m.pnpm[24m\chai@4.5.0\node_modules\[4mchai[24m\lib\chai\utils\addMethod.js:57:25)
+    at Proxy.<anonymous> (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+expect@1.6.1/node_modules/[4m@vitest/expect[24m/dist/index.js:850:16)
+    at Proxy.overwritingMethodWrapper (C:\Users\pc\OneDrive\Desktop\Air canvas\node_modules\[4m.pnpm[24m\chai@4.5.0\node_modules\[4mchai[24m\lib\chai\utils\overwriteMethod.js:78:33)
+    at Proxy.<anonymous> (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+expect@1.6.1/node_modules/[4m@vitest/expect[24m/dist/index.js:1324:19)
+
+ [32m✓[39m tests/events.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 38[2mms[22m[39m
+ [32m✓[39m tests/architecture.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 11[2mms[22m[39m
+ [32m✓[39m tests/confidence.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 104[2mms[22m[39m
+ [32m✓[39m tests/math.test.ts [2m ([22m[2m5 tests[22m[2m)[22m[90m 55[2mms[22m[39m
+ [32m✓[39m tests/handwriting.test.ts [2m ([22m[2m6 tests[22m[2m)[22m[90m 250[2mms[22m[39m
+ [32m✓[39m tests/character.test.ts [2m ([22m[2m5 tests[22m[2m)[22m[90m 133[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+[2m      Tests [22m [1m[32m42 passed[39m[22m[90m (42)[39m
+[2m   Start at [22m 13:39:18
+[2m   Duration [22m 21.98s[2m (transform 16.15s, setup 2ms, collect 28.27s, tests 976ms, environment 35ms, prepare 45.10s)[22m
+

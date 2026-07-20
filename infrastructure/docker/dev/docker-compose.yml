@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: visioncanvas-postgres-dev
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: devpassword123
+      POSTGRES_DB: visioncanvas_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    networks:
+      - visioncanvas-dev-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: visioncanvas-redis-dev
+    ports:
+      - "6379:6379"
+    networks:
+      - visioncanvas-dev-net
+
+volumes:
+  postgres_dev_data:
+
+networks:
+  visioncanvas-dev-net:
+    driver: bridge

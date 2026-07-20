@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: visioncanvas-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: devpassword123
+      POSTGRES_DB: visioncanvas
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - visioncanvas-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d visioncanvas"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: visioncanvas-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - visioncanvas-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ../../
+      dockerfile: infrastructure/docker/api.Dockerfile
+    container_name: visioncanvas-api
+    environment:
+      - NODE_ENV=development
+      - PORT=4000
+      - DATABASE_URL=postgresql://postgres:devpassword123@postgres:5432/visioncanvas
+      - REDIS_URL=redis://redis:6379
+      - CLIENT_ORIGIN=http://localhost:3000
+      - NEXTAUTH_SECRET=supersecretnextauthsecret32charslengthneededhere
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - visioncanvas-net
+
+  web:
+    build:
+      context: ../../
+      dockerfile: infrastructure/docker/web.Dockerfile
+    container_name: visioncanvas-web
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    networks:
+      - visioncanvas-net
+
+  worker:
+    build:
+      context: ../../
+      dockerfile: infrastructure/docker/worker.Dockerfile
+    container_name: visioncanvas-worker
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - visioncanvas-net
+
+volumes:
+  postgres_data:
+
+networks:
+  visioncanvas-net:
+    driver: bridge

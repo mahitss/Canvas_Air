@@ -1,0 +1,50 @@
+
+> @visioncanvas/drawing-engine@1.0.0 test C:\Users\pc\OneDrive\Desktop\Air canvas\packages\drawing-engine
+> vitest run
+
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/pc/OneDrive/Desktop/Air canvas/packages/drawing-engine[39m
+
+[90mstdout[2m | tests/smoothing.test.ts[2m > [22m[2mSmoothingService[2m > [22m[2mshould benchmark smoothing service execution latency[22m[39m
+[BENCHMARK] Smoothing 100 points, total time for 500 iterations: 44.85ms
+[BENCHMARK] Average latency per smoothing run: 89.703 microseconds
+
+ [32m✓[39m tests/smoothing.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 64[2mms[22m[39m
+ [32m✓[39m tests/integration.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 39[2mms[22m[39m
+ [32m✓[39m tests/drawing.test.ts [2m ([22m[2m7 tests[22m[2m)[22m[90m 38[2mms[22m[39m
+ [32m✓[39m tests/history.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 47[2mms[22m[39m
+[90mstdout[2m | tests/optimization_benchmarks.test.ts[2m > [22m[2mDrawing Engine Performance & Memory Benchmarks[2m > [22m[2mshould benchmark frame rendering times and point addition latency under heavy load[22m[39m
+[BENCHMARK] Active stroke with 500 points on top of 5000 cached points:
+[BENCHMARK] Total execution time: 58.00ms
+[BENCHMARK] Average latency per point addition: 116.00 microseconds
+
+[90mstdout[2m | tests/optimization_benchmarks.test.ts[2m > [22m[2mDrawing Engine Performance & Memory Benchmarks[2m > [22m[2mshould benchmark rendering viewport frustum culling effectiveness[22m[39m
+[BENCHMARK] Redrawing 10 culled offscreen strokes completed in 1.708ms
+
+ [32m✓[39m tests/optimization_benchmarks.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[33m 795[2mms[22m[39m
+ [32m✓[39m tests/solid.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 28[2mms[22m[39m
+ [32m✓[39m tests/air_interaction.test.ts [2m ([22m[2m8 tests[22m[2m)[22m[90m 40[2mms[22m[39m
+[90mstderr[2m | tests/events.test.ts[2m > [22m[2mDrawingEventBus System[2m > [22m[2mshould isolate subscriber execution errors gracefully[22m[39m
+[DrawingEventBusError] Dispatch callback execution failed: Error: Failure
+    at [90mC:\Users\pc\OneDrive\Desktop\Air canvas\packages\drawing-engine\[39mtests\events.test.ts:51:13
+    at DrawingEventBus.publish [90m(C:\Users\pc\OneDrive\Desktop\Air canvas\packages\drawing-engine\[39msrc\events.ts:99:9[90m)[39m
+    at [90mC:\Users\pc\OneDrive\Desktop\Air canvas\packages\drawing-engine\[39mtests\events.test.ts:59:9
+    at file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+runner@1.6.1/node_modules/[4m@vitest/runner[24m/dist/index.js:135:14
+    at file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+runner@1.6.1/node_modules/[4m@vitest/runner[24m/dist/index.js:60:26
+    at runTest (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+runner@1.6.1/node_modules/[4m@vitest/runner[24m/dist/index.js:781:17)
+    at runSuite (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+runner@1.6.1/node_modules/[4m@vitest/runner[24m/dist/index.js:909:15)
+    at runSuite (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+runner@1.6.1/node_modules/[4m@vitest/runner[24m/dist/index.js:909:15)
+    at runFiles (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+runner@1.6.1/node_modules/[4m@vitest/runner[24m/dist/index.js:958:5)
+    at startTests (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+runner@1.6.1/node_modules/[4m@vitest/runner[24m/dist/index.js:967:3)
+
+ [32m✓[39m tests/layer.test.ts [2m ([22m[2m7 tests[22m[2m)[22m[90m 34[2mms[22m[39m
+ [32m✓[39m tests/events.test.ts [2m ([22m[2m5 tests[22m[2m)[22m[90m 47[2mms[22m[39m
+ [32m✓[39m tests/canvas.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 11[2mms[22m[39m
+ [32m✓[39m tests/brush.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 14[2mms[22m[39m
+ [32m✓[39m tests/stroke.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 13[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m12 passed[39m[22m[90m (12)[39m
+[2m      Tests [22m [1m[32m50 passed[39m[22m[90m (50)[39m
+[2m   Start at [22m 13:40:17
+[2m   Duration [22m 9.00s[2m (transform 8.35s, setup 5ms, collect 14.47s, tests 1.17s, environment 10ms, prepare 17.11s)[22m
+

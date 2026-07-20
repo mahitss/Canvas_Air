@@ -1,0 +1,17 @@
+
+> @visioncanvas/sketch-to-image@1.0.0 test C:\Users\pc\OneDrive\Desktop\Air canvas\packages\sketch-to-image
+> vitest run
+
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/pc/OneDrive/Desktop/Air canvas/packages/sketch-to-image[39m
+
+ [32m✓[39m tests/engine_components.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 17[2mms[22m[39m
+ [32m✓[39m tests/engine_advanced.test.ts [2m ([22m[2m5 tests[22m[2m)[22m[90m 178[2mms[22m[39m
+ [32m✓[39m tests/image.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[33m 350[2mms[22m[39m
+ [32m✓[39m tests/engine_optimizations.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 18[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[32m14 passed[39m[22m[90m (14)[39m
+[2m   Start at [22m 13:39:24
+[2m   Duration [22m 26.39s[2m (transform 28.39s, setup 0ms, collect 32.23s, tests 563ms, environment 4ms, prepare 18.02s)[22m
+

@@ -1,0 +1,18 @@
+{
+  "name": "@visioncanvas/drawing-engine",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@visioncanvas/ts-config": "workspace:*",
+    "@visioncanvas/hand-tracking": "workspace:*",
+    "@visioncanvas/gesture-recognition": "workspace:*",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
+  }
+}

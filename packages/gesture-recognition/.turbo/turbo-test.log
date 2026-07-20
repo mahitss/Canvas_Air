@@ -1,0 +1,27 @@
+
+> @visioncanvas/gesture-recognition@1.0.0 test C:\Users\pc\OneDrive\Desktop\Air canvas\packages\gesture-recognition
+> vitest run
+
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/pc/OneDrive/Desktop/Air canvas/packages/gesture-recognition[39m
+
+ [32m✓[39m tests/static-gesture.test.ts [2m ([22m[2m7 tests[22m[2m)[22m[90m 26[2mms[22m[39m
+[90mstdout[2m | tests/optimized-engine.test.ts[2m > [22m[2mOptimized Gesture Engine & RingBuffer[2m > [22m[2mOptimizedGestureRecognitionEngine[2m > [22m[2mshould benchmark frame processing latency under normal pipeline execution conditions[22m[39m
+[BENCHMARK] Total time for 5000 frames: 45.64ms
+[BENCHMARK] Average latency per frame: 9.128 microseconds
+
+ [32m✓[39m tests/optimized-engine.test.ts [2m ([22m[2m5 tests[22m[2m)[22m[90m 147[2mms[22m[39m
+ [32m✓[39m tests/confidence.test.ts [2m ([22m[2m5 tests[22m[2m)[22m[90m 19[2mms[22m[39m
+ [32m✓[39m tests/dynamic-gesture.test.ts [2m ([22m[2m8 tests[22m[2m)[22m[90m 16[2mms[22m[39m
+ [32m✓[39m tests/integration.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 271[2mms[22m[39m
+ [32m✓[39m tests/multi-hand.test.ts [2m ([22m[2m6 tests[22m[2m)[22m[90m 15[2mms[22m[39m
+ [32m✓[39m tests/gesture_intelligence.test.ts [2m ([22m[2m7 tests[22m[2m)[22m[90m 41[2mms[22m[39m
+ [32m✓[39m tests/custom-framework.test.ts [2m ([22m[2m6 tests[22m[2m)[22m[90m 13[2mms[22m[39m
+ [32m✓[39m tests/event-bus.test.ts [2m ([22m[2m5 tests[22m[2m)[22m[90m 27[2mms[22m[39m
+ [32m✓[39m tests/gesture.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 13[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m10 passed[39m[22m[90m (10)[39m
+[2m      Tests [22m [1m[32m55 passed[39m[22m[90m (55)[39m
+[2m   Start at [22m 13:40:06
+[2m   Duration [22m 10.40s[2m (transform 10.94s, setup 1ms, collect 15.36s, tests 588ms, environment 6ms, prepare 14.79s)[22m
+

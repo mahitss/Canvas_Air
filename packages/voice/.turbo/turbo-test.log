@@ -1,0 +1,32 @@
+
+> @visioncanvas/voice@1.0.0 test C:\Users\pc\OneDrive\Desktop\Air canvas\packages\voice
+> vitest run
+
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/pc/OneDrive/Desktop/Air canvas/packages/voice[39m
+
+ [32m✓[39m tests/events.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 193[2mms[22m[39m
+ [32m✓[39m tests/intent.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 35[2mms[22m[39m
+ [32m✓[39m tests/audio.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[33m 363[2mms[22m[39m
+ [32m✓[39m tests/providers.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 28[2mms[22m[39m
+ [32m✓[39m tests/voice.test.ts [2m ([22m[2m6 tests[22m[2m)[22m[90m 18[2mms[22m[39m
+[90mstdout[2m | tests/benchmarks.test.ts[2m > [22m[2mVoice Command Engine Performance & Buffering Benchmarks[2m > [22m[2mshould benchmark prediction cache hit latency under normal continuous streams[22m[39m
+[BENCHMARK] Non-cached parsing duration: 0.8495ms
+[BENCHMARK] Cached parsing duration: 0.0743ms
+
+[90mstdout[2m | tests/benchmarks.test.ts[2m > [22m[2mVoice Command Engine Performance & Buffering Benchmarks[2m > [22m[2mshould benchmark frame processing throughput over 2000 iterations[22m[39m
+[BENCHMARK] Total duration for 2000 voice evaluations: 3.48ms
+[BENCHMARK] Average latency per voice evaluation: 1.741 microseconds
+
+ [32m✓[39m tests/benchmarks.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 31[2mms[22m[39m
+ [32m✓[39m tests/tts.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[33m 1090[2mms[22m[39m
+ [32m✓[39m tests/integration.test.ts [2m ([22m[2m1 test[22m[2m)[22m[90m 63[2mms[22m[39m
+ [32m✓[39m tests/architecture.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 47[2mms[22m[39m
+ [32m✓[39m tests/parser.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 15[2mms[22m[39m
+ [32m✓[39m tests/wakeword.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 54[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+[2m      Tests [22m [1m[32m37 passed[39m[22m[90m (37)[39m
+[2m   Start at [22m 13:39:58
+[2m   Duration [22m 14.43s[2m (transform 39.81s, setup 4ms, collect 45.95s, tests 1.94s, environment 12ms, prepare 18.19s)[22m
+

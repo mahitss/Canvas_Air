@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: visioncanvas-postgres-prod
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: prodpassword123
+      POSTGRES_DB: visioncanvas_prod
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    networks:
+      - visioncanvas-prod-net
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+
+  redis:
+    image: redis:7-alpine
+    container_name: visioncanvas-redis-prod
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_prod_data:/data
+    networks:
+      - visioncanvas-prod-net
+
+volumes:
+  postgres_prod_data:
+  redis_prod_data:
+
+networks:
+  visioncanvas-prod-net:
+    driver: bridge

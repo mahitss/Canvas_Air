@@ -1,0 +1,41 @@
+
+> @visioncanvas/shape-recognition@1.0.0 test C:\Users\pc\OneDrive\Desktop\Air canvas\packages\shape-recognition
+> vitest run
+
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/pc/OneDrive/Desktop/Air canvas/packages/shape-recognition[39m
+
+[90mstderr[2m | tests/events.test.ts[2m > [22m[2mShapeRecognitionEventBus System[2m > [22m[2mshould isolate subscriber execution errors gracefully (thread-safe dispatch)[22m[39m
+[ShapeRecognitionEventBusError] Dispatch callback execution failed: Error: Subscriber crash
+    at [90mC:\Users\pc\OneDrive\Desktop\Air canvas\packages\shape-recognition\[39mtests\events.test.ts:10:13
+    at mockCall (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+spy@1.6.1/node_modules/[4m@vitest/spy[24m/dist/index.js:50:17)
+    at spy (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/tinyspy@2.2.1/node_modules/[4mtinyspy[24m/dist/index.js:42:80)
+    at ShapeRecognitionEventBus.publish [90m(C:\Users\pc\OneDrive\Desktop\Air canvas\packages\shape-recognition\[39msrc\events.ts:100:9[90m)[39m
+    at [90mC:\Users\pc\OneDrive\Desktop\Air canvas\packages\shape-recognition\[39mtests\events.test.ts:35:22
+    at Proxy.assertThrows (C:\Users\pc\OneDrive\Desktop\Air canvas\node_modules\[4m.pnpm[24m\chai@4.5.0\node_modules\[4mchai[24m\lib\chai\core\assertions.js:2644:7)
+    at Proxy.methodWrapper (C:\Users\pc\OneDrive\Desktop\Air canvas\node_modules\[4m.pnpm[24m\chai@4.5.0\node_modules\[4mchai[24m\lib\chai\utils\addMethod.js:57:25)
+    at Proxy.<anonymous> (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+expect@1.6.1/node_modules/[4m@vitest/expect[24m/dist/index.js:850:16)
+    at Proxy.overwritingMethodWrapper (C:\Users\pc\OneDrive\Desktop\Air canvas\node_modules\[4m.pnpm[24m\chai@4.5.0\node_modules\[4mchai[24m\lib\chai\utils\overwriteMethod.js:78:33)
+    at Proxy.<anonymous> (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+expect@1.6.1/node_modules/[4m@vitest/expect[24m/dist/index.js:1324:19)
+
+ [32m✓[39m tests/events.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 54[2mms[22m[39m
+ [32m✓[39m tests/confidence.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 20[2mms[22m[39m
+ [32m✓[39m tests/geometry.test.ts [2m ([22m[2m6 tests[22m[2m)[22m[90m 15[2mms[22m[39m
+ [32m✓[39m tests/recognition.test.ts [2m ([22m[2m9 tests[22m[2m)[22m[90m 25[2mms[22m[39m
+ [32m✓[39m tests/providers.test.ts [2m ([22m[2m5 tests[22m[2m)[22m[90m 39[2mms[22m[39m
+ [32m✓[39m tests/normalization.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 228[2mms[22m[39m
+ [32m✓[39m tests/integration.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[33m 304[2mms[22m[39m
+ [32m✓[39m tests/architecture.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 9[2mms[22m[39m
+ [32m✓[39m tests/magic_gesture.test.ts [2m ([22m[2m8 tests[22m[2m)[22m[90m 93[2mms[22m[39m
+[90mstdout[2m | tests/benchmarks.test.ts[2m > [22m[2mShape Recognition Engine Performance Benchmarks[2m > [22m[2mshould process a large set of strokes with high throughput and low latency[22m[39m
+[BENCHMARK] Recognized 200 strokes (100 points each) in 13.75ms
+[BENCHMARK] Average recognition latency: 0.069 ms per stroke
+
+ [32m✓[39m tests/benchmarks.test.ts [2m ([22m[2m1 test[22m[2m)[22m[90m 92[2mms[22m[39m
+ [32m✓[39m tests/shape.test.ts [2m ([22m[2m5 tests[22m[2m)[22m[90m 226[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+[2m      Tests [22m [1m[32m51 passed[39m[22m[90m (51)[39m
+[2m   Start at [22m 13:39:03
+[2m   Duration [22m 22.28s[2m (transform 24.78s, setup 5ms, collect 42.50s, tests 1.10s, environment 114ms, prepare 46.82s)[22m
+

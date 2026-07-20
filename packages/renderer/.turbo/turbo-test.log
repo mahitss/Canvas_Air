@@ -1,0 +1,48 @@
+
+> @visioncanvas/renderer@1.0.0 test C:\Users\pc\OneDrive\Desktop\Air canvas\packages\renderer
+> vitest run
+
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/pc/OneDrive/Desktop/Air canvas/packages/renderer[39m
+
+ [32m✓[39m tests/camera.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 11[2mms[22m[39m
+ [32m✓[39m tests/layer.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 29[2mms[22m[39m
+ [32m✓[39m tests/integration.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 17[2mms[22m[39m
+[90mstdout[2m | tests/benchmarks.test.ts[2m > [22m[2mRendering Optimizations & Benchmarks[2m > [22m[2mStress Load Benchmarks[2m > [22m[2mshould execute rendering loops under heavy load efficiently using ObjectPool[22m[39m
+[Stress Load Benchmark] Rendered 1000 nodes bounds calculations:
+- ObjectPool Time: 1.7143ms
+- Fresh Instantiations Time: 0.1796ms
+
+ [32m✓[39m tests/benchmarks.test.ts [2m ([22m[2m5 tests[22m[2m)[22m[90m 53[2mms[22m[39m
+[90mstderr[2m | tests/events.test.ts[2m > [22m[2mRenderer Event Bus[2m > [22m[2mshould isolate subscriber exceptions and prevent publisher context crash[22m[39m
+[RendererEventBusError] Subscriber threw exception during callback: Error: Subscriber failed!
+    at [90mC:\Users\pc\OneDrive\Desktop\Air canvas\packages\renderer\[39mtests\events.test.ts:78:13
+    at RendererEventBus.safeExecute [90m(C:\Users\pc\OneDrive\Desktop\Air canvas\packages\renderer\[39msrc\events\bus.ts:91:7[90m)[39m
+    at RendererEventBus.publish [90m(C:\Users\pc\OneDrive\Desktop\Air canvas\packages\renderer\[39msrc\events\bus.ts:22:14[90m)[39m
+    at [90mC:\Users\pc\OneDrive\Desktop\Air canvas\packages\renderer\[39mtests\events.test.ts:91:22
+    at Proxy.assertThrows (C:\Users\pc\OneDrive\Desktop\Air canvas\node_modules\[4m.pnpm[24m\chai@4.5.0\node_modules\[4mchai[24m\lib\chai\core\assertions.js:2644:7)
+    at Proxy.methodWrapper (C:\Users\pc\OneDrive\Desktop\Air canvas\node_modules\[4m.pnpm[24m\chai@4.5.0\node_modules\[4mchai[24m\lib\chai\utils\addMethod.js:57:25)
+    at Proxy.<anonymous> (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+expect@1.6.1/node_modules/[4m@vitest/expect[24m/dist/index.js:850:16)
+    at Proxy.overwritingMethodWrapper (C:\Users\pc\OneDrive\Desktop\Air canvas\node_modules\[4m.pnpm[24m\chai@4.5.0\node_modules\[4mchai[24m\lib\chai\utils\overwriteMethod.js:78:33)
+    at Proxy.<anonymous> (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+expect@1.6.1/node_modules/[4m@vitest/expect[24m/dist/index.js:1324:19)
+    at Proxy.<anonymous> (file:///C:/Users/pc/OneDrive/Desktop/Air%20canvas/node_modules/[4m.pnpm[24m/@vitest+expect@1.6.1/node_modules/[4m@vitest/expect[24m/dist/index.js:800:17)
+
+ [32m✓[39m tests/events.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 132[2mms[22m[39m
+ [32m✓[39m tests/transform.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 40[2mms[22m[39m
+ [32m✓[39m tests/scenegraph.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 13[2mms[22m[39m
+ [32m✓[39m tests/vfx_integration.test.ts [2m ([22m[2m1 test[22m[2m)[22m[90m 9[2mms[22m[39m
+ [32m✓[39m tests/shader.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 58[2mms[22m[39m
+ [32m✓[39m tests/monitoring.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 14[2mms[22m[39m
+ [32m✓[39m tests/gpu.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 13[2mms[22m[39m
+ [32m✓[39m tests/architecture.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 78[2mms[22m[39m
+ [32m✓[39m tests/renderer.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 17[2mms[22m[39m
+[90mstderr[2m | tests/renderer.test.ts[2m > [22m[2mFrame Budget Scheduling Ticks[2m > [22m[2mshould skip post-processing overlays if budget is exceeded[22m[39m
+[FrameScheduler] Skipping post-process pass to maintain frame rate target.
+
+ [32m✓[39m tests/pipeline.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 121[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m14 passed[39m[22m[90m (14)[39m
+[2m      Tests [22m [1m[32m46 passed[39m[22m[90m (46)[39m
+[2m   Start at [22m 13:39:50
+[2m   Duration [22m 18.45s[2m (transform 18.49s, setup 4ms, collect 33.16s, tests 605ms, environment 16ms, prepare 38.66s)[22m
+

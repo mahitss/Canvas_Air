@@ -1,0 +1,12 @@
+# Set standard line endings to LF across platforms
+* text=auto eol=lf
+
+# Explicitly declare binary assets to prevent git diff distortions
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.onnx binary
+*.bin binary

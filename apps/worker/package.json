@@ -1,0 +1,21 @@
+{
+  "name": "@visioncanvas/worker",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@visioncanvas/config": "workspace:*",
+    "@visioncanvas/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@visioncanvas/ts-config": "workspace:*",
+    "typescript": "^5.4.5",
+    "ts-node-dev": "^2.0.0"
+  }
+}

@@ -1,0 +1,15 @@
+
+> @visioncanvas/release-engineering@1.0.0 test C:\Users\pc\OneDrive\Desktop\Air canvas\packages\release-engineering
+> vitest run
+
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/pc/OneDrive/Desktop/Air canvas/packages/release-engineering[39m
+
+ [32m✓[39m tests/release.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 30[2mms[22m[39m
+ [32m✓[39m tests/release_center.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 19[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+[2m   Start at [22m 13:39:40
+[2m   Duration [22m 9.52s[2m (transform 8.46s, setup 2ms, collect 9.48s, tests 49ms, environment 1ms, prepare 3.66s)[22m
+

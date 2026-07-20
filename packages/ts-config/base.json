@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    
+    /* Project References & Build Optimization */
+    "incremental": true,
+    "composite": true,
+
+    /* Strict Type-Checking Rules */
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    
+    /* Additional Safety Checks */
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    
+    "skipLibCheck": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+
+    /* Path Aliases mapping */
+    "paths": {
+      "@ui/*": ["../../packages/ui/src/*"],
+      "@types/*": ["../../packages/types/src/*"],
+      "@utils/*": ["../../packages/utils/src/*"],
+      "@config/*": ["../../packages/config/src/*"],
+      "@hooks/*": ["../../packages/hooks/src/*"]
+    }
+  }
+}

@@ -1,0 +1,17 @@
+
+> @visioncanvas/object-detection@1.0.0 test C:\Users\pc\OneDrive\Desktop\Air canvas\packages\object-detection
+> vitest run
+
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/pc/OneDrive/Desktop/Air canvas/packages/object-detection[39m
+
+ [32m✓[39m tests/detection.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 30[2mms[22m[39m
+ [32m✓[39m tests/advanced_components.test.ts [2m ([22m[2m5 tests[22m[2m)[22m[90m 36[2mms[22m[39m
+ [32m✓[39m tests/optimizations_bus.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 138[2mms[22m[39m
+ [32m✓[39m tests/parser_provider.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 113[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[32m12 passed[39m[22m[90m (12)[39m
+[2m   Start at [22m 13:39:43
+[2m   Duration [22m 15.19s[2m (transform 6.89s, setup 0ms, collect 10.06s, tests 317ms, environment 3ms, prepare 17.89s)[22m
+
