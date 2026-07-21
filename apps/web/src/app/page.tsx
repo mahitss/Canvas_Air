@@ -47,6 +47,7 @@ import {
   FingertipBridgeRenderer,
   Hero
 } from "../services/HeroEngine";
+import { VoxelBuildEngine, VoxelBlock } from "../services/VoxelBuildEngine";
 
 const PRESET_COLORS = [
   "#ef4444", // Red
@@ -225,8 +226,12 @@ export default function Home() {
   // Hand configuration mode
   const [handMode, setHandMode] = useState<"right" | "left" | "auto">("right");
 
-  // Drawing Modes: Free Draw, Smart Writing (AI), Sketch Recognition, Hero Mode
-  const [drawMode, setDrawMode] = useState<"free" | "smart" | "sketch" | "hero">("free");
+  // Drawing Modes: Free Draw, Smart Writing (AI), Sketch Recognition, Hero Mode, Spatial Build Mode
+  const [drawMode, setDrawMode] = useState<"free" | "smart" | "sketch" | "hero" | "build">("free");
+
+  // Voxel Build Mode engine and material selection
+  const voxelEngineRef = useRef(new VoxelBuildEngine());
+  const [selectedMaterial, setSelectedMaterial] = useState<VoxelBlock["material"]>("neon");
 
   // Interaction Method: Auto, Air Pen (Index Finger), Pinch
   const [drawingMethod, setDrawingMethod] = useState<"auto" | "airpen" | "pinch">("auto");
@@ -545,28 +550,29 @@ export default function Home() {
 
       const confidence = result.confidence ?? 0.0;
       const text = result.text;
+      const aiMode: "smart" | "sketch" = currentMode === "sketch" ? "sketch" : "smart";
 
       // Trigger AI recognition toast
       setNotification({ text, confidence });
 
       if (confidence >= 0.90) {
         // High confidence (>90%): Morph & Replace automatically
-        replaceStrokesWithAIResult(targetStrokes, text, currentMode);
+        replaceStrokesWithAIResult(targetStrokes, text, aiMode);
         setSuggestions(null);
       } else if (confidence >= 0.70) {
         // Moderate confidence (70-90%): Morph & Replace + show alternative suggestion chips
-        replaceStrokesWithAIResult(targetStrokes, text, currentMode);
+        replaceStrokesWithAIResult(targetStrokes, text, aiMode);
         if (result.suggestions && result.suggestions.length > 0) {
           setSuggestions(result.suggestions);
           setPendingStrokes(targetStrokes);
-          setPendingAiMode(currentMode);
+          setPendingAiMode(aiMode);
         }
       } else {
         // Low confidence (<70%): Keep handwritten stroke on canvas + show "Did you mean?" suggestions
         if (result.suggestions && result.suggestions.length > 0) {
           setSuggestions(result.suggestions);
           setPendingStrokes(targetStrokes);
-          setPendingAiMode(currentMode);
+          setPendingAiMode(aiMode);
         }
       }
     })
@@ -1023,6 +1029,31 @@ export default function Home() {
               pinchStatusRef.current.className = isPinchActive ? "text-indigo-400 font-bold animate-pulse" : "";
             }
 
+          } else if (drawModeRef.current === "build") {
+            // ----------------------------------------------------
+            // SPATIAL BUILD MODE LOOP (Voxel 3D Grid & Block Placement)
+            // ----------------------------------------------------
+            let cursorGrid: { gridX: number; gridY: number } | null = null;
+
+            if (smoothIndex) {
+              const originX = rect.width / 2;
+              const originY = rect.height / 2;
+              const snapped = voxelEngineRef.current.snapToGrid(smoothIndex.x, smoothIndex.y, originX, originY);
+              cursorGrid = { gridX: snapped.gridX, gridY: snapped.gridY };
+
+              const rawLandmarks = p.hand.rightHandLandmarks || p.hand.leftHandLandmarks;
+              const isGestureActive = rawLandmarks ? isAirPenGesture(rawLandmarks) : false;
+
+              if (isGestureActive && cursorGrid) {
+                voxelEngineRef.current.addBlock(cursorGrid.gridX, cursorGrid.gridY);
+              }
+            }
+
+            voxelEngineRef.current.render(ctx, rect.width, rect.height, cursorGrid);
+
+            if (p.hand.rightHandLandmarks) {
+              p.renderer?.drawSkeleton(ctx, p.hand.rightHandLandmarks, rect.width, rect.height, "rgba(56, 189, 248, 0.4)");
+            }
           } else {
             // ----------------------------------------------------
             // STANDARD AIR DRAWING MODES LOOP
@@ -1528,6 +1559,16 @@ export default function Home() {
             }`}
           >
             ⭐ Hero Mode
+          </button>
+          <button
+            onClick={() => setDrawMode("build")}
+            className={`px-3 py-1 text-xs rounded-lg font-semibold transition-all flex items-center gap-1 ${
+              drawMode === "build"
+                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25 scale-105"
+                : "text-zinc-400 hover:text-zinc-200"
+            }`}
+          >
+            Spatial Build 🧱
           </button>
         </div>
 
@@ -2185,6 +2226,37 @@ export default function Home() {
             })}
           </div>
 
+        </div>
+      )}
+
+      {/* 6d. SPATIAL BUILD MODE CONTROL BAR */}
+      {drawMode === "build" && (
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-3 pointer-events-auto">
+          <div className="flex items-center gap-2 p-2 bg-zinc-950/80 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-2xl">
+            {(["neon", "glass", "ice", "lava", "metal", "stone", "wood"] as VoxelBlock["material"][]).map((mat) => (
+              <button
+                key={mat}
+                onClick={() => {
+                  setSelectedMaterial(mat);
+                  voxelEngineRef.current.setMaterial(mat);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold capitalize transition-all active:scale-95 ${
+                  selectedMaterial === mat
+                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 scale-105"
+                    : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                }`}
+              >
+                {mat}
+              </button>
+            ))}
+            <div className="h-5 w-[1px] bg-zinc-800 mx-1" />
+            <button
+              onClick={() => voxelEngineRef.current.clear()}
+              className="px-3 py-1.5 rounded-xl text-xs font-bold text-rose-400 hover:bg-rose-500/10 transition-all"
+            >
+              Clear Grid
+            </button>
+          </div>
         </div>
       )}
 
