@@ -48,7 +48,7 @@ import {
   Hero
 } from "../services/HeroEngine";
 import { VoxelBuildEngine, VoxelBlock } from "../services/VoxelBuildEngine";
-import { EngineeringStudioEngine, EngineeringDomain } from "../services/EngineeringStudioEngine";
+import { EngineeringStudioEngine, EngineeringDomain, ParametricComponent } from "../services/EngineeringStudioEngine";
 import { ModeManager, ResourceManager } from "../services/ModeManager";
 
 const PRESET_COLORS = [
@@ -237,9 +237,9 @@ export default function Home() {
 
   // Engineering Studio workspace engine state
   const engineeringEngineRef = useRef(new EngineeringStudioEngine());
-  const [activeComponentId, setActiveComponentId] = useState<string | null>("arch_wall");
-  const activeComponentIdRef = useRef<string | null>("arch_wall");
-  useEffect(() => { activeComponentIdRef.current = activeComponentId; }, [activeComponentId]);
+  const [activeCadType, setActiveCadType] = useState<ParametricComponent["type"] | null>("wall");
+  const activeCadTypeRef = useRef<ParametricComponent["type"] | null>("wall");
+  useEffect(() => { activeCadTypeRef.current = activeCadType; }, [activeCadType]);
 
   // Centralized Spatial Mode Manager & Resource Engine
   const modeManagerRef = useRef(new ModeManager());
@@ -1073,22 +1073,19 @@ export default function Home() {
             }
           } else if (drawModeRef.current === "engineering") {
             // ----------------------------------------------------
-            // ENGINEERING STUDIO WORKSPACE LOOP (Spatial CAD Engine)
+            // ENGINEERING STUDIO WORKSPACE LOOP (Parametric Spatial CAD Engine)
             // ----------------------------------------------------
             if (smoothIndex) {
               const rawLandmarks = p.hand.rightHandLandmarks || p.hand.leftHandLandmarks;
               const isGestureActive = rawLandmarks ? isAirPenGesture(rawLandmarks) : false;
 
-              if (isGestureActive && activeComponentIdRef.current) {
-                engineeringEngineRef.current.addComponent(activeComponentIdRef.current, smoothIndex.x, smoothIndex.y);
+              if (isGestureActive && activeCadTypeRef.current) {
+                engineeringEngineRef.current.addParametricComponent(activeCadTypeRef.current, smoothIndex.x, smoothIndex.y);
               }
             }
 
-            engineeringEngineRef.current.render(ctx, rect.width, rect.height, smoothIndex, activeComponentIdRef.current);
-
-            if (p.hand.rightHandLandmarks) {
-              p.renderer?.drawSkeleton(ctx, p.hand.rightHandLandmarks, rect.width, rect.height, "rgba(56, 189, 248, 0.4)");
-            }
+            // Render clean Spatial CAD view (Grid visible ONLY during placement/editing)
+            engineeringEngineRef.current.render(ctx, rect.width, rect.height, smoothIndex, activeCadTypeRef.current);
           } else {
             // ----------------------------------------------------
             // STANDARD AIR DRAWING MODES LOOP
@@ -2282,18 +2279,18 @@ export default function Home() {
         </div>
       )}
 
-      {/* 6e. ENGINEERING STUDIO CONTROL BAR & COMPONENT PALETTE */}
+      {/* 6e. ENGINEERING STUDIO CONTROL BAR & PARAMETRIC COMPONENT PALETTE */}
       {drawMode === "engineering" && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-3 pointer-events-auto">
-          {/* Domain & AI Assistant Header */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-2.5 pointer-events-auto max-w-[95vw]">
+          {/* Domain & Controls Header */}
           <div className="flex items-center gap-2 p-1.5 bg-zinc-950/90 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-2xl">
-            {(["architecture", "civil", "mechanical", "electrical", "robotics"] as EngineeringDomain[]).map((dom) => (
+            {(["architecture", "mechanical", "electrical", "robotics"] as EngineeringDomain[]).map((dom) => (
               <button
                 key={dom}
                 onClick={() => {
                   engineeringEngineRef.current.setDomain(dom);
-                  const firstComp = EngineeringStudioEngine.COMPONENT_CATALOG.find(c => c.domain === dom);
-                  if (firstComp) setActiveComponentId(firstComp.id);
+                  const firstComp = EngineeringStudioEngine.CATALOG.find(c => c.domain === dom);
+                  if (firstComp) setActiveCadType(firstComp.type);
                 }}
                 className={`px-3 py-1 text-xs font-bold capitalize rounded-xl transition-all ${
                   engineeringEngineRef.current.activeDomain === dom
@@ -2308,66 +2305,43 @@ export default function Home() {
             <div className="h-5 w-[1px] bg-zinc-800 mx-1" />
 
             <button
-              onClick={() => {
-                const prompt = window.prompt("AI Engineering Assistant (e.g. 'Create a two-floor house', 'Create a robot chassis')");
-                if (prompt) {
-                  const rect = canvasRef.current?.getBoundingClientRect() || { width: 800, height: 600 };
-                  engineeringEngineRef.current.generateAIScene(prompt, rect.width / 2, rect.height / 2);
-                }
-              }}
-              className="px-3 py-1 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white transition-all flex items-center gap-1"
-            >
-              ✨ AI Builder
-            </button>
-          </div>
-
-          {/* Component Catalog Pills */}
-          <div className="flex items-center gap-2 p-2 bg-zinc-950/80 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-2xl">
-            {EngineeringStudioEngine.COMPONENT_CATALOG.map((comp) => (
-              <button
-                key={comp.id}
-                onClick={() => setActiveComponentId(comp.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 ${
-                  activeComponentId === comp.id
-                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 scale-105"
-                    : "text-zinc-400 hover:text-white hover:bg-zinc-800"
-                }`}
-              >
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: comp.color }} />
-                <span>{comp.name}</span>
-              </button>
-            ))}
-
-            <div className="h-5 w-[1px] bg-zinc-800 mx-1" />
-
-            <button
               onClick={() => engineeringEngineRef.current.rotateSelectedNode()}
-              className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-zinc-800 hover:bg-zinc-700 text-zinc-200 transition-all"
-              title="Rotate Component (45°)"
+              className="px-2.5 py-1 rounded-xl text-xs font-bold bg-zinc-800 hover:bg-zinc-700 text-zinc-200 transition-all"
             >
               🔄 Rotate
             </button>
             <button
               onClick={() => engineeringEngineRef.current.deleteSelectedNode()}
-              className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-rose-600/20 text-rose-300 hover:bg-rose-600/30 transition-all"
-              title="Delete Component"
+              className="px-2.5 py-1 rounded-xl text-xs font-bold bg-rose-600/20 text-rose-300 hover:bg-rose-600/30 transition-all"
             >
               🗑️ Delete
             </button>
             <button
-              onClick={() => {
-                const objData = engineeringEngineRef.current.exportToOBJ();
-                const blob = new Blob([objData], { type: "text/plain" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = "visioncanvas_cad_model.obj";
-                a.click();
-              }}
-              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-md active:scale-95"
+              onClick={() => engineeringEngineRef.current.clear()}
+              className="px-2.5 py-1 rounded-xl text-xs font-bold bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-all"
             >
-              Export OBJ
+              Clear
             </button>
+          </div>
+
+          {/* Component Catalog Pills filtered by active domain */}
+          <div className="flex items-center gap-1.5 p-2 bg-zinc-950/80 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-2xl overflow-x-auto max-w-[90vw] custom-scrollbar">
+            {EngineeringStudioEngine.CATALOG
+              .filter(comp => comp.domain === engineeringEngineRef.current.activeDomain)
+              .map((comp) => (
+                <button
+                  key={comp.id}
+                  onClick={() => setActiveCadType(comp.type)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 active:scale-95 ${
+                    activeCadType === comp.type
+                      ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 scale-105"
+                      : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                  }`}
+                >
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: comp.color }} />
+                  <span>{comp.name}</span>
+                </button>
+              ))}
           </div>
         </div>
       )}

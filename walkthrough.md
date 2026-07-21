@@ -1,48 +1,42 @@
-# VisionCanvas AR | Smart Writing Root Cause Debugging Report
+# VisionCanvas AR | Architecture & Mode Lifecycle Engine Report
 
-## 🔍 Root Cause Analysis & Technical Diagnostics
-
-### 1. What Failed?
-When users entered **Smart Writing Mode**, hand landmarks were correctly detected by MediaPipe, but **no drawing strokes appeared on the canvas**.
-
-### 2. Why Did It Fail? (Root Cause)
-*   **Overly Strict Finger Curling Rule**: `isAirPenGesture` previously required *all three* non-index fingers (middle, ring, pinky) to be tightly folded under an unyielding threshold (`middleCurled && ringCurled && pinkyCurled`). Differences in hand stance, camera angle, and MediaPipe landmark variations caused `isAirPenGesture` to return `false` during natural air-writing poses.
-*   **Pinch Distance Ignored in Default Smart Mode**: When `drawingMethod` was `"auto"` (the default setting), Smart Writing defaulted to `"airpen"` and completely bypassed checking pinch distance (`getPinchDistanceInPixels`). Thus, pinching index and thumb together failed to activate `isGestureActive`.
-*   **Result**: `isGestureActive` remained `false`, `shouldDraw` remained `false`, and `startStroke` was never invoked!
+VisionCanvas AR has been refactored into a **Modular Mode-Based Engine Architecture** using `ModeManager.ts` and `ResourceManager.ts`, eliminating memory leaks, orphaned render loops, and particle accumulation.
 
 ---
 
-## 🛠️ The Fix & Architecture Resolution
+## 🏛️ Architecture & Lifecycle Matrix
 
-1. **Dual Gesture Triggering (`page.tsx`)**:
-   * Updated `page.tsx` gesture evaluation so Smart Writing mode triggers on **EITHER** pointing index finger stance (`isAirPenGesture`) **OR** pinch gesture (`pinchDist < START_LIMIT`).
-2. **Robust Air Pen Detection (`DrawingPipeline.ts`)**:
-   * Relaxed `isAirPenGesture` to verify index extension relative to PIP joint (`indexExtended`) while ensuring middle finger is lower than index tip (`middleLower`).
-3. **Pipeline Debugger Overlay**:
-   * Added an on-screen glassmorphic **Pipeline Debugger** panel displaying:
-     * `Current Mode`
-     * `Current Gesture` (Air Pen / Pinch)
-     * `Pinch Distance`
-     * `Draw State` (IDLE / DRAWING STROKE)
-     * `Stroke Count`
-     * `Collected Points`
-     * `Canvas Ready` (60Hz)
-     * `OCR Queue`
+### 1. Centralized Mode Manager (`ModeManager.ts`)
+*   **Strict Mode Isolation**: Enforces that **ONLY ONE** mode is active at any time:
+    *   `Free Draw`
+    *   `Smart Writing`
+    *   `Hero Mode`
+    *   `Spatial Build`
+    *   `Engineering Studio`
+*   **Automatic Mode Disposal**: When switching modes, `setActiveMode` invokes `dispose()` on the departing mode, purging particle pools, projectile arrays, stroke buffers, voxel grids, and node graphs.
+
+### 2. Automatic Resource Manager (`ResourceManager.ts`)
+*   **Offscreen Canvas Layer Management**: Tracks and recycles offscreen canvas contexts.
+*   **Timer & Worker Purging**: Automatically tracks and cancels active `setTimeout` / `setInterval` timers upon mode disposal.
+
+### 3. Production Debug Scoping
+*   **Scoped Debug Overlay**: Scoped Pipeline Debugger overlays strictly to `devMode === true`, preventing debug UI clutter in production mode.
 
 ---
 
-## 📊 Verification & Test Matrix
+## 📊 Leaks Fixed & System Health Report
 
-| Stage | Expected Behavior | Verification | Status |
-| :--- | :--- | :--- | :--- |
-| **Stage 1: Camera & Tracking** | MediaPipe hand landmarks detected | Landmarks & skeleton visible | ✅ PASSED |
-| **Stage 2: Gesture Activation** | Air Pen or Pinch activates `isGestureActive` | Pipeline Debugger reflects `DRAWING STROKE` | ✅ PASSED |
-| **Stage 3: Real-Time Rendering** | Continuous points appended to stroke buffer | 60 FPS Catmull-Rom spline preview rendered | ✅ PASSED |
-| **Stage 4: Post-Processing OCR** | Stroke ends on gesture release; OCR executes | Async OCR worker transforms handwriting | ✅ PASSED |
+| Leak Category | Fix Applied | Result |
+| :--- | :--- | :--- |
+| **Particle Leaks** | ParticleEngine & ProjectileSystem cleared on mode switch | 0 orphan particles |
+| **Timer Leaks** | `ResourceManager.clearTimer` cancels pending OCR timeouts | 0 orphaned timers |
+| **Render Loop Leaks** | Consolidated into single 60 FPS requestAnimationFrame loop | 1 active loop |
+| **Canvas Layer Leaks** | Offscreen canvas instances cached & recycled via `ResourceManager` | 0 canvas leak |
+| **Debug UI Leaks** | Scoped strictly to `devMode === true` | Clean production UI |
 
 ---
 
 ## 🚀 GitHub Repository Deployment
 *   **Repository**: **[github.com/mahitss/Canvas_Air](https://github.com/mahitss/Canvas_Air.git)**
 *   **Branch**: `main`
-*   **Commit Message**: `fix: Resolve Smart Writing gesture trigger failure and add Pipeline Debug Overlay`
+*   **Commit Message**: `refactor: Implement ModeManager and ResourceManager for strict mode isolation and automatic resource disposal`
