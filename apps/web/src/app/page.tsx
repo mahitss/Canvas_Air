@@ -1466,21 +1466,26 @@ export default function Home() {
         }}
       />
 
-      {/* 4. Top Utility Control Panel with Logical Groups & Increased Spacing */}
-      <header className="absolute top-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-6 px-5 py-2.5 bg-zinc-900/80 backdrop-blur-md border border-zinc-700/40 rounded-2xl shadow-xl">
-        <h1 className="text-sm font-bold tracking-tight text-white select-none">
-          VisionCanvas <span className="text-indigo-400 font-extrabold font-mono">AR</span>
-        </h1>
+      {/* 4. Top Utility Control Panel with Vision Pro Glassmorphism & Status Badges */}
+      <header className="absolute top-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-5 px-5 py-2.5 bg-zinc-950/80 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl">
+        <div className="flex items-center gap-2">
+          <h1 className="text-sm font-bold tracking-tight text-white select-none flex items-center gap-1.5">
+            VisionCanvas <span className="text-indigo-400 font-extrabold font-mono">AR</span>
+          </h1>
+          <span className="px-2 py-0.5 text-[9px] uppercase font-bold tracking-wider rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+            Spatial
+          </span>
+        </div>
 
         <div className="h-5 w-[1px] bg-zinc-800/80" />
 
         {/* Group 1: Mode Selectors */}
-        <div className="flex items-center gap-1.5 bg-zinc-950/65 p-1 rounded-xl border border-zinc-850/80">
+        <div className="flex items-center gap-1.5 bg-zinc-900/80 p-1 rounded-xl border border-zinc-800/80">
           <button
             onClick={() => setDrawMode("free")}
-            className={`px-2.5 py-1 text-xs rounded-lg font-semibold transition-all ${
+            className={`px-3 py-1 text-xs rounded-lg font-semibold transition-all ${
               drawMode === "free"
-                ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/20"
+                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25 scale-105"
                 : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
@@ -1488,23 +1493,23 @@ export default function Home() {
           </button>
           <button
             onClick={() => setDrawMode("smart")}
-            className={`px-2.5 py-1 text-xs rounded-lg font-semibold transition-all ${
+            className={`px-3 py-1 text-xs rounded-lg font-semibold transition-all ${
               drawMode === "smart"
-                ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/20"
+                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25 scale-105"
                 : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
-            Smart Writing
+            Smart Writing ✍️
           </button>
           <button
             onClick={() => setDrawMode("sketch")}
-            className={`px-2.5 py-1 text-xs rounded-lg font-semibold transition-all ${
+            className={`px-3 py-1 text-xs rounded-lg font-semibold transition-all ${
               drawMode === "sketch"
-                ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/20"
+                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25 scale-105"
                 : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
-            Sketch Recognition
+            Sketch Recognition 📐
           </button>
           <button
             onClick={() => {
@@ -1513,9 +1518,9 @@ export default function Home() {
               projectileSystemRef.current.clear();
               chargeLevelRef.current = 0;
             }}
-            className={`px-2.5 py-1 text-xs rounded-lg font-semibold transition-all flex items-center gap-1 ${
+            className={`px-3 py-1 text-xs rounded-lg font-semibold transition-all flex items-center gap-1 ${
               drawMode === "hero"
-                ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/20"
+                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25 scale-105"
                 : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
