@@ -49,6 +49,7 @@ import {
 } from "../services/HeroEngine";
 import { VoxelBuildEngine, VoxelBlock } from "../services/VoxelBuildEngine";
 import { EngineeringStudioEngine, EngineeringDomain } from "../services/EngineeringStudioEngine";
+import { ModeManager, ResourceManager } from "../services/ModeManager";
 
 const PRESET_COLORS = [
   "#ef4444", // Red
@@ -239,6 +240,15 @@ export default function Home() {
   const [activeComponentId, setActiveComponentId] = useState<string | null>("arch_wall");
   const activeComponentIdRef = useRef<string | null>("arch_wall");
   useEffect(() => { activeComponentIdRef.current = activeComponentId; }, [activeComponentId]);
+
+  // Centralized Spatial Mode Manager & Resource Engine
+  const modeManagerRef = useRef(new ModeManager());
+  useEffect(() => {
+    ResourceManager.disposeAll();
+    if (modeManagerRef.current) {
+      console.log(`[ModeManager] Active mode: ${drawMode} | Previous: ${modeManagerRef.current.getActiveModeName()}`);
+    }
+  }, [drawMode]);
 
   // Interaction Method: Auto, Air Pen (Index Finger), Pinch
   const [drawingMethod, setDrawingMethod] = useState<"auto" | "airpen" | "pinch">("auto");
@@ -2104,8 +2114,8 @@ export default function Home() {
         </div>
       )}
 
-      {/* 6b. Telemetry Monitor & Pipeline Debug Overlay (Exposed in Smart Writing or Dev Mode) */}
-      {(devMode || drawMode === "smart") && !isDrawingState && (
+      {/* 6b. Telemetry Monitor & Pipeline Debug Overlay (Exposed strictly in Developer Mode) */}
+      {devMode && !isDrawingState && (
         <div className="absolute top-20 right-6 z-40 w-64 p-3.5 bg-zinc-950/80 border border-indigo-500/30 backdrop-blur-2xl rounded-2xl shadow-2xl text-zinc-300 text-xs font-mono space-y-1.5">
           <div className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider border-b border-zinc-800 pb-1.5 flex items-center justify-between">
             <span>Pipeline Debugger</span>

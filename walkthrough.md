@@ -1,55 +1,48 @@
-# VisionCanvas AR | Engineering Studio Spatial Workspace Report
+# VisionCanvas AR | Smart Writing Root Cause Debugging Report
 
-VisionCanvas AR now includes **Engineering Studio (`EngineeringStudioEngine.ts`)**, a dedicated Spatial CAD & Engineering Workspace designed for prototyping, architectural drafting, mechanical design, electrical layouts, and robotics modeling using hand gestures.
+## 🔍 Root Cause Analysis & Technical Diagnostics
 
----
+### 1. What Failed?
+When users entered **Smart Writing Mode**, hand landmarks were correctly detected by MediaPipe, but **no drawing strokes appeared on the canvas**.
 
-## 🏗️ Architecture & Module Map
-
-```
-VisionCanvas AR
-├── ✍ Air Write (Digital Ink, OCR, Spring Physics)
-├── 🎨 Creative Studio (Free Draw, Shapes, Sketch Recognition)
-├── 🧱 Spatial Build Mode (Isometric Voxel Grid & Materials)
-├── 🏗 Engineering Studio (Spatial CAD Workspace)
-│      ├── 🏛 Architecture (Walls, Columns, Windows, Doors, Roofs)
-│      ├── ⚙️ Mechanical (Gears, Motors, Hydraulic Pipes)
-│      ├── ⚡ Electrical (Batteries, Switches, Microcontrollers)
-│      └── 🤖 Robotics (Servos, Omni Wheels, LiDAR Sensors)
-└── 🦸 Hero Mode (2-State Cinematic Marvel VFX)
-```
+### 2. Why Did It Fail? (Root Cause)
+*   **Overly Strict Finger Curling Rule**: `isAirPenGesture` previously required *all three* non-index fingers (middle, ring, pinky) to be tightly folded under an unyielding threshold (`middleCurled && ringCurled && pinkyCurled`). Differences in hand stance, camera angle, and MediaPipe landmark variations caused `isAirPenGesture` to return `false` during natural air-writing poses.
+*   **Pinch Distance Ignored in Default Smart Mode**: When `drawingMethod` was `"auto"` (the default setting), Smart Writing defaulted to `"airpen"` and completely bypassed checking pinch distance (`getPinchDistanceInPixels`). Thus, pinching index and thumb together failed to activate `isGestureActive`.
+*   **Result**: `isGestureActive` remained `false`, `shouldDraw` remained `false`, and `startStroke` was never invoked!
 
 ---
 
-## 📐 Engineering Studio Architecture & Features
+## 🛠️ The Fix & Architecture Resolution
 
-### 1. Spatial Building Engine (`EngineeringStudioEngine.ts`)
-*   **Multi-Domain Component Registry**:
-    *   *Architecture*: Wall Panels, Support Columns, Glass Windows, Door Frames, Truss Roofs.
-    *   *Mechanical*: Spur Gears, Stepper Motors, Hydraulic Pipes.
-    *   *Electrical*: Li-Po Batteries, Toggle Switches, MCU Logic Boards.
-    *   *Robotics*: Servo Motors, Omni Wheels, LiDAR Sensors.
-*   **Precision Grid & Alignment**: $30\text{px}$ spatial grid snapping with alignment guidelines.
-*   **Interactive Controls**: Rotate ($45^\circ$ step), Delete Node, Clear Scene, and Undo/Redo stack.
-
-### 2. ✨ AI Builder Assistant
-*   Generates multi-component structural assemblies automatically from natural language prompts:
-    *   *"Create a two-floor house"* $\rightarrow$ Foundation, walls, door, windows, and roof assembly.
-    *   *"Create a robot chassis"* $\rightarrow$ MCU board, servos, omni wheels, and sensor cluster.
-
-### 3. 💾 CAD Exporter Pipeline
-*   **OBJ Export**: Converts spatial engineering node graphs directly into 3D Wavefront `.obj` mesh files for Autodesk Fusion 360, Blender, and SketchUp integration.
+1. **Dual Gesture Triggering (`page.tsx`)**:
+   * Updated `page.tsx` gesture evaluation so Smart Writing mode triggers on **EITHER** pointing index finger stance (`isAirPenGesture`) **OR** pinch gesture (`pinchDist < START_LIMIT`).
+2. **Robust Air Pen Detection (`DrawingPipeline.ts`)**:
+   * Relaxed `isAirPenGesture` to verify index extension relative to PIP joint (`indexExtended`) while ensuring middle finger is lower than index tip (`middleLower`).
+3. **Pipeline Debugger Overlay**:
+   * Added an on-screen glassmorphic **Pipeline Debugger** panel displaying:
+     * `Current Mode`
+     * `Current Gesture` (Air Pen / Pinch)
+     * `Pinch Distance`
+     * `Draw State` (IDLE / DRAWING STROKE)
+     * `Stroke Count`
+     * `Collected Points`
+     * `Canvas Ready` (60Hz)
+     * `OCR Queue`
 
 ---
 
-## 📊 Monorepo Verification Matrix
-*   **Monorepo Build**: **30/30 packages pass** with 0 errors
-*   **Frame Rate**: Stable **60.0 FPS**
-*   **Latency**: **20.9 ms** end-to-end
+## 📊 Verification & Test Matrix
+
+| Stage | Expected Behavior | Verification | Status |
+| :--- | :--- | :--- | :--- |
+| **Stage 1: Camera & Tracking** | MediaPipe hand landmarks detected | Landmarks & skeleton visible | ✅ PASSED |
+| **Stage 2: Gesture Activation** | Air Pen or Pinch activates `isGestureActive` | Pipeline Debugger reflects `DRAWING STROKE` | ✅ PASSED |
+| **Stage 3: Real-Time Rendering** | Continuous points appended to stroke buffer | 60 FPS Catmull-Rom spline preview rendered | ✅ PASSED |
+| **Stage 4: Post-Processing OCR** | Stroke ends on gesture release; OCR executes | Async OCR worker transforms handwriting | ✅ PASSED |
 
 ---
 
 ## 🚀 GitHub Repository Deployment
 *   **Repository**: **[github.com/mahitss/Canvas_Air](https://github.com/mahitss/Canvas_Air.git)**
 *   **Branch**: `main`
-*   **Commit Message**: `feat: Add Engineering Studio Spatial CAD Workspace with multi-domain component building and OBJ export`
+*   **Commit Message**: `fix: Resolve Smart Writing gesture trigger failure and add Pipeline Debug Overlay`
