@@ -440,32 +440,21 @@ export function isAirPenGesture(landmarks: any[]): boolean {
   const indexPip = landmarks[6];
   const middleTip = landmarks[12];
   const middlePip = landmarks[10];
-  const ringTip = landmarks[16];
-  const ringPip = landmarks[14];
-  const pinkyTip = landmarks[20];
-  const pinkyPip = landmarks[18];
 
-  if (!wrist || !indexTip || !indexPip || !middleTip || !ringTip || !pinkyTip) {
+  if (!wrist || !indexTip || !indexPip || !middleTip || !middlePip) {
     return false;
   }
 
+  // Index finger extended from wrist relative to PIP joint
   const dWristIndexTip = Math.sqrt((indexTip.x - wrist.x) ** 2 + (indexTip.y - wrist.y) ** 2);
   const dWristIndexPip = Math.sqrt((indexPip.x - wrist.x) ** 2 + (indexPip.y - wrist.y) ** 2);
-  const indexExtended = dWristIndexTip > dWristIndexPip * 1.12;
+  const indexExtended = dWristIndexTip > dWristIndexPip * 1.08;
 
+  // Middle finger is lower than index tip (relaxed pointing stance)
   const dWristMiddleTip = Math.sqrt((middleTip.x - wrist.x) ** 2 + (middleTip.y - wrist.y) ** 2);
-  const dWristMiddlePip = Math.sqrt((middlePip.x - wrist.x) ** 2 + (middlePip.y - wrist.y) ** 2);
-  const middleCurled = dWristMiddleTip < dWristMiddlePip * 1.25;
+  const middleLower = dWristMiddleTip < dWristIndexTip * 0.98;
 
-  const dWristRingTip = Math.sqrt((ringTip.x - wrist.x) ** 2 + (ringTip.y - wrist.y) ** 2);
-  const dWristRingPip = Math.sqrt((ringPip.x - wrist.x) ** 2 + (ringPip.y - wrist.y) ** 2);
-  const ringCurled = dWristRingTip < dWristRingPip * 1.25;
-
-  const dWristPinkyTip = Math.sqrt((pinkyTip.x - wrist.x) ** 2 + (pinkyTip.y - wrist.y) ** 2);
-  const dWristPinkyPip = Math.sqrt((pinkyPip.x - wrist.x) ** 2 + (pinkyPip.y - wrist.y) ** 2);
-  const pinkyCurled = dWristPinkyTip < dWristPinkyPip * 1.25;
-
-  return indexExtended && middleCurled && ringCurled && pinkyCurled;
+  return indexExtended && middleLower;
 }
 
 // 5. GestureEngine for left-hand gestures
