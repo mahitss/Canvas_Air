@@ -41,11 +41,11 @@ export interface Impact {
   radius: number;
 }
 
-// 1. GPU-friendly Particle Engine using Object Pooling
+// 1. GPU-friendly High-Quality Object-Pooled Particle Engine (Zero Allocations in Loop)
 export class ParticleEngine {
   private pool: Particle[] = [];
   private activeParticles: Particle[] = [];
-  private maxParticles = 2500;
+  private maxParticles = 1500; // Controlled limit for high-quality readable VFX
 
   constructor() {
     for (let i = 0; i < this.maxParticles; i++) {
@@ -119,8 +119,8 @@ export class ParticleEngine {
         p.x += p.vx;
         p.y += p.vy;
       } else if (p.type === "spiral" && p.angle !== undefined && p.orbitRadius !== undefined) {
-        p.angle += extraAngleSpeed(p.color) * dt;
-        p.orbitRadius = Math.max(2, p.orbitRadius - 120 * dt);
+        p.angle += 4.5 * dt;
+        p.orbitRadius = Math.max(2, p.orbitRadius - 100 * dt);
         const cx = p.vx;
         const cy = p.vy;
         p.x = cx + Math.cos(p.angle) * p.orbitRadius;
@@ -128,8 +128,8 @@ export class ParticleEngine {
       } else {
         p.x += p.vx * dt * 60;
         p.y += p.vy * dt * 60;
-        p.vx *= 0.97;
-        p.vy *= 0.97;
+        p.vx *= 0.96;
+        p.vy *= 0.96;
       }
     }
 
@@ -153,7 +153,7 @@ export class ParticleEngine {
       ctx.globalAlpha = p.alpha;
 
       if (p.glow) {
-        ctx.shadowBlur = p.size * 1.5;
+        ctx.shadowBlur = p.size * 2.0;
         ctx.shadowColor = p.color;
       } else {
         ctx.shadowBlur = 0;
@@ -178,11 +178,7 @@ export class ParticleEngine {
   }
 }
 
-function extraAngleSpeed(color: string): number {
-  return color.includes("cyan") ? 6.0 : 4.0;
-}
-
-// 2. PHASE 1: Fingertip Energy Bridge System (Non-crossing, matching colors)
+// 2. STATE 1: SUMMON - Sequential Fingertip Ignition & Energy Bridge Engine
 export class FingertipBridgeRenderer {
   static FINGER_COLORS = {
     thumb: "#ef4444",  // Red
@@ -200,21 +196,25 @@ export class FingertipBridgeRenderer {
     engine: ParticleEngine,
     width: number,
     height: number,
-    chargeLevel: number
+    chargeLevel: number,
+    summonProgress: number // 0.0 to 1.0 (sequential ignition over 500ms)
   ) {
     if (!leftLandmarks || !rightLandmarks) return;
 
     const fingerIndices = [
-      { name: "thumb" as const, idx: 4, color: FingertipBridgeRenderer.FINGER_COLORS.thumb },
-      { name: "index" as const, idx: 8, color: FingertipBridgeRenderer.FINGER_COLORS.index },
-      { name: "middle" as const, idx: 12, color: FingertipBridgeRenderer.FINGER_COLORS.middle },
-      { name: "ring" as const, idx: 16, color: FingertipBridgeRenderer.FINGER_COLORS.ring },
-      { name: "pinky" as const, idx: 20, color: FingertipBridgeRenderer.FINGER_COLORS.pinky }
+      { name: "thumb" as const, idx: 4, color: FingertipBridgeRenderer.FINGER_COLORS.thumb, ignitionThreshold: 0.1 },
+      { name: "index" as const, idx: 8, color: FingertipBridgeRenderer.FINGER_COLORS.index, ignitionThreshold: 0.3 },
+      { name: "middle" as const, idx: 12, color: FingertipBridgeRenderer.FINGER_COLORS.middle, ignitionThreshold: 0.5 },
+      { name: "ring" as const, idx: 16, color: FingertipBridgeRenderer.FINGER_COLORS.ring, ignitionThreshold: 0.7 },
+      { name: "pinky" as const, idx: 20, color: FingertipBridgeRenderer.FINGER_COLORS.pinky, ignitionThreshold: 0.9 }
     ];
 
     const time = performance.now() * 0.003;
 
     fingerIndices.forEach((finger) => {
+      // Sequential Ignition: Finger ignites only when summonProgress reaches its threshold
+      if (summonProgress < finger.ignitionThreshold) return;
+
       const leftLm = leftLandmarks[finger.idx];
       const rightLm = rightLandmarks[finger.idx];
 
@@ -223,35 +223,35 @@ export class FingertipBridgeRenderer {
       const p1 = { x: leftLm.x * width, y: leftLm.y * height };
       const p2 = { x: rightLm.x * width, y: rightLm.y * height };
 
-      // 1. Draw glowing fingertip energy spheres
+      // 1. Draw glowing ignited fingertip energy spheres
       [p1, p2].forEach((pt) => {
         ctx.save();
-        ctx.shadowBlur = 16;
+        ctx.shadowBlur = 18;
         ctx.shadowColor = finger.color;
         ctx.fillStyle = finger.color;
         ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 6.5, 0, Math.PI * 2);
+        ctx.arc(pt.x, pt.y, 7.0, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.fillStyle = "#ffffff";
         ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 2.5, 0, Math.PI * 2);
+        ctx.arc(pt.x, pt.y, 3.0, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
       });
 
-      // 2. Draw pulsating energy bridge cable connecting matching fingertips
+      // 2. Draw stable energy bridge cable connecting matching ignited fingertips
       ctx.save();
       ctx.globalCompositeOperation = "screen";
-      ctx.shadowBlur = 18;
+      ctx.shadowBlur = 20;
       ctx.shadowColor = finger.color;
       ctx.strokeStyle = finger.color;
-      ctx.lineWidth = 2.5 + Math.sin(time * 6 + finger.idx) * 0.8;
+      ctx.lineWidth = 3.0 + Math.sin(time * 5 + finger.idx) * 0.8;
 
       ctx.beginPath();
       ctx.moveTo(p1.x, p1.y);
 
-      const steps = 8;
+      const steps = 10;
       const dx = p2.x - p1.x;
       const dy = p2.y - p1.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
@@ -260,7 +260,7 @@ export class FingertipBridgeRenderer {
         const t = s / steps;
         const perpX = -dy / (dist || 1);
         const perpY = dx / (dist || 1);
-        const offset = Math.sin(t * Math.PI * 3 + time * 10) * (6 + chargeLevel * 8);
+        const offset = Math.sin(t * Math.PI * 3 + time * 8) * (5 + chargeLevel * 6);
 
         const interpX = p1.x + dx * t + perpX * offset;
         const interpY = p1.y + dy * t + perpY * offset;
@@ -270,93 +270,40 @@ export class FingertipBridgeRenderer {
       ctx.lineTo(p2.x, p2.y);
       ctx.stroke();
 
+      // Inner white high-density electric core line
       ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 1.0;
+      ctx.lineWidth = 1.2;
       ctx.stroke();
       ctx.restore();
 
-      // 3. Flow energy particles along bridge toward center core
-      if (Math.random() < 0.65) {
+      // 3. Energy visibly flows along each cable toward the central core
+      if (Math.random() < 0.5) {
         const sourcePt = Math.random() < 0.5 ? p1 : p2;
         const t = Math.random();
         const startX = sourcePt.x + (centerCore.x - sourcePt.x) * t;
         const startY = sourcePt.y + (centerCore.y - sourcePt.y) * t;
 
-        const vx = (centerCore.x - startX) * 0.08;
-        const vy = (centerCore.y - startY) * 0.08;
+        const vx = (centerCore.x - startX) * 0.09;
+        const vy = (centerCore.y - startY) * 0.09;
 
-        engine.spawn(startX, startY, vx, vy, finger.color, 1.8 + Math.random() * 1.5, 400 + Math.random() * 200, "dust");
+        engine.spawn(startX, startY, vx, vy, finger.color, 2.0 + Math.random() * 1.5, 350 + Math.random() * 150, "dust");
       }
     });
   }
 }
 
-// 3. Base Class for Elemental Heroes
+// 3. Base Class for Elemental Heroes (Movie-Quality VFX Specifications)
 export abstract class Hero {
   abstract name: string;
   abstract icon: string;
   abstract palette: string[];
   abstract baseColor: string;
 
-  abstract playIdle(ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, dt: number): void;
-  abstract playCharge(ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, charge: number, dt: number, handDistance?: number): void;
+  abstract playSummon(ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, charge: number, dt: number, handDistance?: number): void;
   abstract playImpact(engine: ParticleEngine, x: number, y: number): void;
-
-  playSummoning(ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, _dt: number, width?: number, height?: number) {
-    const w = width || 1280;
-    const h = height || 720;
-
-    // PHASE 3: SUMMONING - Cinematic Expanding Magical Rings & Cosmic Rays
-    ctx.save();
-    ctx.globalCompositeOperation = "screen";
-    ctx.strokeStyle = this.baseColor;
-    ctx.shadowBlur = 25;
-    ctx.shadowColor = this.baseColor;
-
-    const time = performance.now() * 0.002;
-    for (let r = 1; r <= 3; r++) {
-      const ringRadius = (35 * r) + Math.sin(time * 3 + r) * 12;
-      ctx.lineWidth = 2.0 / r;
-      ctx.beginPath();
-      ctx.arc(center.x, center.y, ringRadius, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-
-    // Light rays burst
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = 1.5;
-    for (let ray = 0; ray < 8; ray++) {
-      const rayAngle = (ray / 8) * Math.PI * 2 + time;
-      const len = 90 + Math.sin(time * 5 + ray) * 25;
-      ctx.beginPath();
-      ctx.moveTo(center.x, center.y);
-      ctx.lineTo(center.x + Math.cos(rayAngle) * len, center.y + Math.sin(rayAngle) * len);
-      ctx.stroke();
-    }
-
-    ctx.restore();
-
-    for (let i = 0; i < 6; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const spawnDist = Math.max(w, h) * 0.42;
-      const startX = center.x + Math.cos(angle) * spawnDist;
-      const startY = center.y + Math.sin(angle) * spawnDist;
-      const color = this.palette[Math.floor(Math.random() * this.palette.length)]!;
-
-      engine.spawn(
-        startX, startY,
-        center.x, center.y,
-        color,
-        2.0 + Math.random() * 2.5,
-        700 + Math.random() * 300,
-        "spiral",
-        { angle, orbitRadius: spawnDist }
-      );
-    }
-  }
 }
 
-// 🌌 GALAXY HERO
+// 🌌 GALAXY HERO (Movie-Quality Cosmic Nebula & Universe Formation)
 export class GalaxyHero extends Hero {
   name = "Galaxy";
   icon = "🌌";
@@ -365,116 +312,72 @@ export class GalaxyHero extends Hero {
 
   private tAngle = 0;
 
-  playIdle(_ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, dt: number) {
-    this.tAngle += dt * 1.5;
-    
-    if (Math.random() < 0.25) {
-      const radius = 30 + Math.random() * 40;
-      const angle = Math.random() * Math.PI * 2;
-      const speed = 1.0 + Math.random() * 1.5;
-      const color = this.palette[Math.floor(Math.random() * (this.palette.length - 1))]!;
-      
-      const px = center.x + Math.cos(angle) * radius;
-      const py = center.y + Math.sin(angle) * radius;
-      const vx = -Math.sin(angle) * speed;
-      const vy = Math.cos(angle) * speed;
+  playSummon(ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, charge: number, dt: number, handDistance: number = 120) {
+    this.tAngle += dt * (2.0 + charge * 3.5);
 
-      engine.spawn(px, py, vx, vy, color, 1.5 + Math.random() * 2, 1000 + Math.random() * 800, "orbit", {
-        angle,
-        orbitRadius: radius,
-        orbitSpeed: speed
-      });
-    }
-
-    if (Math.random() < 0.3) {
-      const dx = (Math.random() - 0.5) * 40;
-      const dy = (Math.random() - 0.5) * 40;
-      const vx = (Math.random() - 0.5) * 0.4;
-      const vy = (Math.random() - 0.5) * 0.4;
-      engine.spawn(center.x + dx, center.y + dy, vx, vy, "#a855f7", 1.0, 1500, "dust", { glow: false });
-    }
-  }
-
-  playCharge(ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, charge: number, dt: number, handDistance: number = 120) {
-    this.tAngle += dt * (2.0 + (handDistance / 100) * 2.5 + charge * 4.0);
-
-    const streamCount = Math.floor(3 + charge * 6 + (handDistance / 50));
-    for (let i = 0; i < streamCount; i++) {
-      const startAngle = Math.random() * Math.PI * 2;
-      const radius = Math.min(220, handDistance * 0.6 + Math.random() * 60);
-      const px = center.x + Math.cos(startAngle) * radius;
-      const py = center.y + Math.sin(startAngle) * radius;
-      const color = this.palette[Math.floor(Math.random() * this.palette.length)]!;
-      
-      engine.spawn(px, py, center.x, center.y, color, 1.5 + Math.random() * 2.5, 600 + Math.random() * 400, "spiral", {
-        angle: startAngle,
-        orbitRadius: radius
-      });
-    }
-
-    const coreRadius = Math.max(12, Math.min(85, (handDistance * 0.22) + charge * 26));
+    // 1. Ambient Radial Light Aura (Building Tension)
+    const coreRadius = Math.max(15, Math.min(95, (handDistance * 0.25) + charge * 35));
     ctx.save();
     ctx.globalCompositeOperation = "screen";
-    ctx.shadowBlur = coreRadius * 2.5;
+    ctx.shadowBlur = coreRadius * 2.8;
     ctx.shadowColor = "#a855f7";
 
-    const grad = ctx.createRadialGradient(center.x, center.y, 0, center.x, center.y, coreRadius);
+    const grad = ctx.createRadialGradient(center.x, center.y, 0, center.x, center.y, coreRadius * 1.6);
     grad.addColorStop(0, "#ffffff");
-    grad.addColorStop(0.3, "#06b6d4");
+    grad.addColorStop(0.35, "#06b6d4");
     grad.addColorStop(0.7, "#6366f1");
-    grad.addColorStop(1, "transparent");
+    grad.addColorStop(1.0, "transparent");
     
     ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.arc(center.x, center.y, coreRadius, 0, Math.PI * 2);
+    ctx.arc(center.x, center.y, coreRadius * 1.6, 0, Math.PI * 2);
     ctx.fill();
 
-    if (charge >= 0.90) {
+    // 2. Cosmic Light Rays & Lens Flare Flare Spikes at 100% Charge
+    if (charge >= 0.85) {
       ctx.strokeStyle = "#ffffff";
       ctx.lineWidth = 2.0;
-      ctx.shadowBlur = 18;
+      ctx.shadowBlur = 20;
       ctx.shadowColor = "#06b6d4";
 
+      const spikeLen = coreRadius * 1.8;
       ctx.beginPath();
-      ctx.moveTo(center.x - 65, center.y);
-      ctx.lineTo(center.x + 65, center.y);
-      ctx.moveTo(center.x, center.y - 65);
-      ctx.lineTo(center.x, center.y + 65);
+      ctx.moveTo(center.x - spikeLen, center.y);
+      ctx.lineTo(center.x + spikeLen, center.y);
+      ctx.moveTo(center.x, center.y - spikeLen);
+      ctx.lineTo(center.x, center.y + spikeLen);
       ctx.stroke();
     }
     
     ctx.restore();
+
+    // 3. High-Quality Spiraling Star Streams & Cosmic Nebula Dust
+    if (Math.random() < 0.75) {
+      const startAngle = Math.random() * Math.PI * 2;
+      const radius = Math.min(200, handDistance * 0.5 + Math.random() * 40);
+      const px = center.x + Math.cos(startAngle) * radius;
+      const py = center.y + Math.sin(startAngle) * radius;
+      const color = this.palette[Math.floor(Math.random() * this.palette.length)]!;
+      
+      engine.spawn(px, py, center.x, center.y, color, 2.0 + Math.random() * 2.0, 500 + Math.random() * 300, "spiral", {
+        angle: startAngle,
+        orbitRadius: radius
+      });
+    }
   }
 
   playImpact(engine: ParticleEngine, x: number, y: number) {
-    for (let i = 0; i < 110; i++) {
-      const angle = (i / 110) * Math.PI * 2;
-      const speed = 3.0 + Math.random() * 6.5;
+    for (let i = 0; i < 90; i++) {
+      const angle = (i / 90) * Math.PI * 2;
+      const speed = 4.0 + Math.random() * 7.5;
       const color = this.palette[Math.floor(Math.random() * this.palette.length)]!;
       engine.spawn(
         x, y,
         Math.cos(angle) * speed,
         Math.sin(angle) * speed,
         color,
-        2.5 + Math.random() * 3.5,
-        1200 + Math.random() * 800
-      );
-    }
-
-    for (let i = 0; i < 40; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const dist = 5 + Math.random() * 30;
-      const speed = 0.5 + Math.random() * 2.0;
-      engine.spawn(
-        x + Math.cos(angle) * dist,
-        y + Math.sin(angle) * dist,
-        -Math.sin(angle) * speed,
-        Math.cos(angle) * speed,
-        "#ffffff",
-        2.0,
-        1800,
-        "orbit",
-        { angle, orbitRadius: dist, orbitSpeed: speed }
+        3.0 + Math.random() * 3.5,
+        1000 + Math.random() * 600
       );
     }
   }
@@ -487,65 +390,55 @@ export class LightningHero extends Hero {
   palette = ["#00f3ff", "#ffeb3b", "#ffffff"];
   baseColor = "#00f3ff";
 
-  playIdle(_ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, _dt: number) {
-    if (Math.random() < 0.35) {
-      const dx = (Math.random() - 0.5) * 35;
-      const dy = (Math.random() - 0.5) * 35;
-      const vx = (Math.random() - 0.5) * 3.0;
-      const vy = (Math.random() - 0.5) * 3.0;
-      engine.spawn(center.x + dx, center.y + dy, vx, vy, "#00f3ff", 1.5, 300 + Math.random() * 200);
-    }
-  }
-
-  playCharge(ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, charge: number, _dt: number, handDistance: number = 120) {
+  playSummon(ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, charge: number, _dt: number, handDistance: number = 120) {
     ctx.save();
     ctx.strokeStyle = "#00f3ff";
-    ctx.lineWidth = 1.5 + charge * 2.5;
-    ctx.shadowBlur = 12 + charge * 12;
+    ctx.lineWidth = 2.0 + charge * 3.0;
+    ctx.shadowBlur = 16 + charge * 16;
     ctx.shadowColor = "#00f3ff";
 
     const drawJaggedArc = (x1: number, y1: number, x2: number, y2: number) => {
       ctx.beginPath();
       ctx.moveTo(x1, y1);
-      const steps = 5;
+      const steps = 6;
       for (let i = 1; i < steps; i++) {
         const t = i / steps;
-        const cx = x1 + (x2 - x1) * t + (Math.random() - 0.5) * 26 * charge;
-        const cy = y1 + (y2 - y1) * t + (Math.random() - 0.5) * 26 * charge;
+        const cx = x1 + (x2 - x1) * t + (Math.random() - 0.5) * 30 * charge;
+        const cy = y1 + (y2 - y1) * t + (Math.random() - 0.5) * 30 * charge;
         ctx.lineTo(cx, cy);
       }
       ctx.lineTo(x2, y2);
       ctx.stroke();
     };
 
-    const halfDist = Math.min(100, handDistance / 2);
-    if (Math.random() < 0.7) {
+    const halfDist = Math.min(110, handDistance / 2);
+    if (Math.random() < 0.8) {
       drawJaggedArc(center.x - halfDist, center.y, center.x + halfDist, center.y);
       drawJaggedArc(center.x, center.y - halfDist, center.x, center.y + halfDist);
     }
 
-    if (Math.random() < 0.85) {
+    if (Math.random() < 0.7) {
       const angle = Math.random() * Math.PI * 2;
       const radius = 10 + Math.random() * (halfDist + 20) * charge;
       const px = center.x + Math.cos(angle) * radius;
       const py = center.y + Math.sin(angle) * radius;
-      engine.spawn(px, py, (Math.random() - 0.5) * 5, (Math.random() - 0.5) * 5, "#ffeb3b", 2.0, 200 + Math.random() * 300);
+      engine.spawn(px, py, (Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4, "#ffeb3b", 2.2, 250 + Math.random() * 250);
     }
 
     ctx.restore();
   }
 
   playImpact(engine: ParticleEngine, x: number, y: number) {
-    for (let i = 0; i < 80; i++) {
+    for (let i = 0; i < 75; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const speed = 4.5 + Math.random() * 9.0;
+      const speed = 5.0 + Math.random() * 9.0;
       engine.spawn(
         x, y,
         Math.cos(angle) * speed,
         Math.sin(angle) * speed,
-        Math.random() < 0.35 ? "#ffeb3b" : "#00f3ff",
-        2.0 + Math.random() * 2.5,
-        400 + Math.random() * 300
+        Math.random() < 0.4 ? "#ffeb3b" : "#00f3ff",
+        2.5 + Math.random() * 3.0,
+        350 + Math.random() * 250
       );
     }
   }
@@ -558,47 +451,31 @@ export class FireHero extends Hero {
   palette = ["#ff3d00", "#ff9100", "#ffea00", "#ffffff"];
   baseColor = "#ff3d00";
 
-  playIdle(_ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, _dt: number) {
-    if (Math.random() < 0.45) {
-      const dx = (Math.random() - 0.5) * 30;
-      const vx = (Math.random() - 0.5) * 0.8;
-      const vy = -1.5 - Math.random() * 1.5;
-      const color = this.palette[Math.floor(Math.random() * 3)]!;
-      engine.spawn(center.x + dx, center.y, vx, vy, color, 2.0 + Math.random() * 2.5, 600 + Math.random() * 300);
-    }
-  }
-
-  playCharge(_ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, charge: number, _dt: number, handDistance: number = 120) {
-    const spawnRate = Math.floor(4 + charge * 8 + (handDistance / 40));
+  playSummon(_ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, charge: number, _dt: number, handDistance: number = 120) {
+    const spawnRate = Math.floor(4 + charge * 6);
     for (let i = 0; i < spawnRate; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const radius = Math.min(120, handDistance * 0.4 + Math.random() * 30);
+      const radius = Math.min(130, handDistance * 0.4 + Math.random() * 30);
       const px = center.x + Math.cos(angle) * radius;
       const py = center.y + 40 - Math.random() * 80;
       
-      const vx = -Math.sin(angle) * (2.0 + charge * 3.5);
-      const vy = -3.5 - charge * 5.0;
+      const vx = -Math.sin(angle) * (2.5 + charge * 4.0);
+      const vy = -4.0 - charge * 5.5;
       const color = this.palette[Math.floor(Math.random() * 3)]!;
 
-      engine.spawn(px, py, vx, vy, color, 2.5 + Math.random() * 3.5, 500 + Math.random() * 300);
+      engine.spawn(px, py, vx, vy, color, 3.0 + Math.random() * 3.5, 450 + Math.random() * 250);
     }
   }
 
   playImpact(engine: ParticleEngine, x: number, y: number) {
-    for (let i = 0; i < 90; i++) {
+    for (let i = 0; i < 80; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const speed = 2.5 + Math.random() * 7.0;
+      const speed = 3.0 + Math.random() * 7.5;
       const vx = Math.cos(angle) * speed;
-      const vy = Math.sin(angle) * speed - 1.5;
+      const vy = Math.sin(angle) * speed - 2.0;
       const color = this.palette[Math.floor(Math.random() * this.palette.length)]!;
       
-      engine.spawn(
-        x, y,
-        vx, vy,
-        color,
-        3.0 + Math.random() * 4.0,
-        800 + Math.random() * 500
-      );
+      engine.spawn(x, y, vx, vy, color, 3.5 + Math.random() * 4.0, 750 + Math.random() * 450);
     }
   }
 }
@@ -610,39 +487,16 @@ export class IceHero extends Hero {
   palette = ["#a5f3fc", "#e0f2fe", "#ffffff"];
   baseColor = "#a5f3fc";
 
-  playIdle(_ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, _dt: number) {
-    if (Math.random() < 0.25) {
-      const dx = (Math.random() - 0.5) * 45;
-      const dy = (Math.random() - 0.5) * 45;
-      const vx = (Math.random() - 0.5) * 0.3;
-      const vy = 0.5 + Math.random() * 0.8;
-      engine.spawn(center.x + dx, center.y + dy, vx, vy, "#e0f2fe", 1.5, 1200 + Math.random() * 600, "dust", { glow: false });
-    }
-  }
-
-  playCharge(ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, charge: number, _dt: number, handDistance: number = 120) {
-    const count = Math.floor(2 + charge * 4 + (handDistance / 40));
-    for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const radius = Math.min(100, handDistance * 0.4);
-      const px = center.x + Math.cos(angle) * radius;
-      const py = center.y + Math.sin(angle) * radius;
-      
-      const vx = (Math.random() - 0.5) * 0.3;
-      const vy = (Math.random() - 0.5) * 0.3;
-
-      engine.spawn(px, py, vx, vy, "#a5f3fc", 2.0 + Math.random() * 2.0, 800, "dust");
-    }
-
+  playSummon(ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, charge: number, _dt: number, handDistance: number = 120) {
     ctx.save();
-    ctx.strokeStyle = "rgba(165, 243, 252, 0.7)";
-    ctx.lineWidth = 1.5 + charge * 2.5;
-    ctx.shadowBlur = 12;
+    ctx.strokeStyle = "rgba(165, 243, 252, 0.8)";
+    ctx.lineWidth = 2.0 + charge * 3.0;
+    ctx.shadowBlur = 16;
     ctx.shadowColor = "#a5f3fc";
     ctx.beginPath();
     
     const sides = 6;
-    const r = Math.max(12, Math.min(70, handDistance * 0.3 + charge * 20));
+    const r = Math.max(15, Math.min(85, handDistance * 0.35 + charge * 25));
     for (let i = 0; i <= sides; i++) {
       const angle = (i / sides) * Math.PI * 2;
       const px = center.x + Math.cos(angle) * r;
@@ -652,20 +506,21 @@ export class IceHero extends Hero {
     }
     ctx.stroke();
     ctx.restore();
+
+    if (Math.random() < 0.6) {
+      const angle = Math.random() * Math.PI * 2;
+      const radius = Math.min(100, handDistance * 0.4);
+      const px = center.x + Math.cos(angle) * radius;
+      const py = center.y + Math.sin(angle) * radius;
+      engine.spawn(px, py, (Math.random() - 0.5) * 0.3, (Math.random() - 0.5) * 0.3, "#a5f3fc", 2.2 + Math.random() * 2.0, 700, "dust");
+    }
   }
 
   playImpact(engine: ParticleEngine, x: number, y: number) {
-    for (let i = 0; i < 70; i++) {
+    for (let i = 0; i < 65; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const speed = 2.0 + Math.random() * 5.5;
-      engine.spawn(
-        x, y,
-        Math.cos(angle) * speed,
-        Math.sin(angle) * speed,
-        Math.random() < 0.4 ? "#ffffff" : "#a5f3fc",
-        2.5 + Math.random() * 3.0,
-        1000 + Math.random() * 400
-      );
+      const speed = 2.5 + Math.random() * 6.0;
+      engine.spawn(x, y, Math.cos(angle) * speed, Math.sin(angle) * speed, Math.random() < 0.4 ? "#ffffff" : "#a5f3fc", 3.0 + Math.random() * 3.0, 900 + Math.random() * 350);
     }
   }
 }
@@ -677,53 +532,31 @@ export class WaterHero extends Hero {
   palette = ["#0ea5e9", "#3b82f6", "#ffffff"];
   baseColor = "#3b82f6";
 
-  playIdle(_ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, _dt: number) {
-    if (Math.random() < 0.3) {
-      const dx = (Math.random() - 0.5) * 40;
-      const dy = (Math.random() - 0.5) * 40;
-      const vx = (Math.random() - 0.5) * 0.4;
-      const vy = (Math.random() - 0.5) * 0.4;
-      engine.spawn(center.x + dx, center.y + dy, vx, vy, "#0ea5e9", 2.0, 1000, "dust", { glow: false });
-    }
-  }
-
-  playCharge(ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, charge: number, _dt: number, handDistance: number = 120) {
-    const radius = Math.max(15, Math.min(80, handDistance * 0.35 + charge * 25));
+  playSummon(ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, charge: number, _dt: number, handDistance: number = 120) {
+    const radius = Math.max(18, Math.min(90, handDistance * 0.38 + charge * 28));
     ctx.save();
-    ctx.strokeStyle = "rgba(14, 165, 233, 0.6)";
-    ctx.lineWidth = 2.0 + charge * 3.0;
+    ctx.strokeStyle = "rgba(14, 165, 233, 0.7)";
+    ctx.lineWidth = 2.5 + charge * 3.5;
+    ctx.shadowBlur = 18;
+    ctx.shadowColor = "#3b82f6";
     ctx.beginPath();
     ctx.arc(center.x, center.y, radius, 0, Math.PI * 2);
     ctx.stroke();
     ctx.restore();
 
-    const count = Math.floor(3 + charge * 5);
-    for (let i = 0; i < count; i++) {
+    if (Math.random() < 0.7) {
       const angle = Math.random() * Math.PI * 2;
       const px = center.x + Math.cos(angle) * radius;
       const py = center.y + Math.sin(angle) * radius;
-      
-      const vx = -Math.sin(angle) * 1.8;
-      const vy = Math.cos(angle) * 1.8;
-
-      engine.spawn(px, py, vx, vy, "#3b82f6", 2.0 + Math.random() * 2.0, 600);
+      engine.spawn(px, py, -Math.sin(angle) * 2.0, Math.cos(angle) * 2.0, "#3b82f6", 2.5 + Math.random() * 2.0, 550);
     }
   }
 
   playImpact(engine: ParticleEngine, x: number, y: number) {
-    for (let i = 0; i < 75; i++) {
+    for (let i = 0; i < 70; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const speed = 2.5 + Math.random() * 6.0;
-      const vx = Math.cos(angle) * speed;
-      const vy = Math.sin(angle) * speed + 0.8;
-      
-      engine.spawn(
-        x, y,
-        vx, vy,
-        "#0ea5e9",
-        2.5 + Math.random() * 3.0,
-        900 + Math.random() * 300
-      );
+      const speed = 3.0 + Math.random() * 6.5;
+      engine.spawn(x, y, Math.cos(angle) * speed, Math.sin(angle) * speed + 0.8, "#0ea5e9", 3.0 + Math.random() * 3.0, 800 + Math.random() * 300);
     }
   }
 }
@@ -735,45 +568,22 @@ export class WindHero extends Hero {
   palette = ["#94a3b8", "#cbd5e1", "#e2e8f0"];
   baseColor = "#cbd5e1";
 
-  playIdle(_ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, _dt: number) {
-    if (Math.random() < 0.25) {
-      const dx = (Math.random() - 0.5) * 50;
-      const dy = (Math.random() - 0.5) * 50;
-      const vx = 1.0 + Math.random() * 1.5;
-      const vy = (Math.random() - 0.5) * 0.4;
-      engine.spawn(center.x + dx, center.y + dy, vx, vy, "#cbd5e1", 1.0, 800, "dust", { glow: false });
-    }
-  }
-
-  playCharge(_ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, charge: number, _dt: number, handDistance: number = 120) {
-    const count = Math.floor(4 + charge * 6);
+  playSummon(_ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, charge: number, _dt: number, handDistance: number = 120) {
+    const count = Math.floor(3 + charge * 5);
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const radius = Math.min(110, handDistance * 0.45);
+      const radius = Math.min(120, handDistance * 0.45);
       const px = center.x + Math.cos(angle) * radius;
       const py = center.y + Math.sin(angle) * radius;
-      
-      const vx = -Math.sin(angle) * (3.5 + charge * 5.0);
-      const vy = Math.cos(angle) * (3.5 + charge * 5.0);
-
-      engine.spawn(px, py, vx, vy, "#e2e8f0", 1.5 + Math.random() * 1.5, 400 + Math.random() * 200, "dust", { glow: false });
+      engine.spawn(px, py, -Math.sin(angle) * (4.0 + charge * 5.0), Math.cos(angle) * (4.0 + charge * 5.0), "#e2e8f0", 1.8 + Math.random() * 1.5, 350 + Math.random() * 150, "dust", { glow: false });
     }
   }
 
   playImpact(engine: ParticleEngine, x: number, y: number) {
-    for (let i = 0; i < 65; i++) {
-      const angle = (i / 65) * Math.PI * 2;
-      const speed = 4.0 + Math.random() * 7.0;
-      engine.spawn(
-        x, y,
-        Math.cos(angle) * speed,
-        Math.sin(angle) * speed,
-        "#cbd5e1",
-        1.5 + Math.random() * 2.0,
-        600 + Math.random() * 300,
-        "dust",
-        { glow: false }
-      );
+    for (let i = 0; i < 60; i++) {
+      const angle = (i / 60) * Math.PI * 2;
+      const speed = 4.5 + Math.random() * 7.5;
+      engine.spawn(x, y, Math.cos(angle) * speed, Math.sin(angle) * speed, "#cbd5e1", 1.8 + Math.random() * 2.0, 500 + Math.random() * 250, "dust", { glow: false });
     }
   }
 }
@@ -785,25 +595,13 @@ export class SolarHero extends Hero {
   palette = ["#eab308", "#f97316", "#ffffff"];
   baseColor = "#eab308";
 
-  playIdle(_ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, _dt: number) {
-    if (Math.random() < 0.35) {
-      const angle = Math.random() * Math.PI * 2;
-      const dist = 10 + Math.random() * 25;
-      const px = center.x + Math.cos(angle) * dist;
-      const py = center.y + Math.sin(angle) * dist;
-      const vx = Math.cos(angle) * 0.8;
-      const vy = Math.sin(angle) * 0.8;
-      engine.spawn(px, py, vx, vy, "#eab308", 2.0, 600);
-    }
-  }
-
-  playCharge(ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, charge: number, _dt: number, handDistance: number = 120) {
+  playSummon(ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, charge: number, _dt: number, handDistance: number = 120) {
     ctx.save();
     ctx.globalCompositeOperation = "screen";
-    ctx.shadowBlur = 18 + charge * 30;
+    ctx.shadowBlur = 20 + charge * 35;
     ctx.shadowColor = "#f97316";
 
-    const r = Math.max(15, Math.min(90, handDistance * 0.35 + charge * 30));
+    const r = Math.max(18, Math.min(95, handDistance * 0.38 + charge * 35));
     const grad = ctx.createRadialGradient(center.x, center.y, 0, center.x, center.y, r);
     grad.addColorStop(0, "#ffffff");
     grad.addColorStop(0.4, "#eab308");
@@ -816,26 +614,19 @@ export class SolarHero extends Hero {
     ctx.fill();
     ctx.restore();
 
-    if (Math.random() < 0.6) {
+    if (Math.random() < 0.65) {
       const angle = Math.random() * Math.PI * 2;
-      const vx = Math.cos(angle) * (2.0 + charge * 4.0);
-      const vy = Math.sin(angle) * (2.0 + charge * 4.0);
-      engine.spawn(center.x, center.y, vx, vy, "#f97316", 2.5, 400 + Math.random() * 400);
+      const vx = Math.cos(angle) * (2.5 + charge * 4.5);
+      const vy = Math.sin(angle) * (2.5 + charge * 4.5);
+      engine.spawn(center.x, center.y, vx, vy, "#f97316", 2.8, 350 + Math.random() * 350);
     }
   }
 
   playImpact(engine: ParticleEngine, x: number, y: number) {
-    for (let i = 0; i < 85; i++) {
+    for (let i = 0; i < 75; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const speed = 3.5 + Math.random() * 8.0;
-      engine.spawn(
-        x, y,
-        Math.cos(angle) * speed,
-        Math.sin(angle) * speed,
-        Math.random() < 0.4 ? "#ffffff" : "#f97316",
-        3.0 + Math.random() * 3.5,
-        900 + Math.random() * 400
-      );
+      const speed = 4.0 + Math.random() * 8.5;
+      engine.spawn(x, y, Math.cos(angle) * speed, Math.sin(angle) * speed, Math.random() < 0.4 ? "#ffffff" : "#f97316", 3.5 + Math.random() * 3.5, 800 + Math.random() * 350);
     }
   }
 }
@@ -847,52 +638,33 @@ export class LunarHero extends Hero {
   palette = ["#38bdf8", "#94a3b8", "#e2e8f0"];
   baseColor = "#38bdf8";
 
-  playIdle(_ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, _dt: number) {
-    if (Math.random() < 0.25) {
-      const dx = (Math.random() - 0.5) * 45;
-      const dy = (Math.random() - 0.5) * 45;
-      const vx = (Math.random() - 0.5) * 0.3;
-      const vy = (Math.random() - 0.5) * 0.3;
-      engine.spawn(center.x + dx, center.y + dy, vx, vy, "#94a3b8", 1.5, 1500, "dust");
-    }
-  }
-
-  playCharge(ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, charge: number, _dt: number, handDistance: number = 120) {
+  playSummon(ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, charge: number, _dt: number, handDistance: number = 120) {
     ctx.save();
-    ctx.strokeStyle = "rgba(56, 189, 248, 0.7)";
-    ctx.lineWidth = 2.0 + charge * 3.0;
-    ctx.shadowBlur = 14;
+    ctx.strokeStyle = "rgba(56, 189, 248, 0.8)";
+    ctx.lineWidth = 2.5 + charge * 3.5;
+    ctx.shadowBlur = 16;
     ctx.shadowColor = "#38bdf8";
 
     ctx.beginPath();
-    const r = Math.max(15, Math.min(80, handDistance * 0.35 + charge * 25));
+    const r = Math.max(18, Math.min(85, handDistance * 0.38 + charge * 28));
     ctx.arc(center.x, center.y, r, -Math.PI / 2, Math.PI / 2);
     ctx.stroke();
     ctx.restore();
 
-    if (Math.random() < 0.65) {
+    if (Math.random() < 0.6) {
       const angle = Math.random() * Math.PI * 2;
       const dist = 25 + Math.random() * 30;
       const px = center.x + Math.cos(angle) * dist;
       const py = center.y + Math.sin(angle) * dist;
-      const vx = -Math.sin(angle) * 1.4;
-      const vy = Math.cos(angle) * 1.4;
-      engine.spawn(px, py, vx, vy, "#e2e8f0", 2.0, 700);
+      engine.spawn(px, py, -Math.sin(angle) * 1.5, Math.cos(angle) * 1.5, "#e2e8f0", 2.2, 600);
     }
   }
 
   playImpact(engine: ParticleEngine, x: number, y: number) {
-    for (let i = 0; i < 75; i++) {
+    for (let i = 0; i < 70; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const speed = 2.5 + Math.random() * 6.0;
-      engine.spawn(
-        x, y,
-        Math.cos(angle) * speed,
-        Math.sin(angle) * speed,
-        Math.random() < 0.5 ? "#38bdf8" : "#e2e8f0",
-        2.0 + Math.random() * 2.5,
-        1000 + Math.random() * 300
-      );
+      const speed = 3.0 + Math.random() * 6.5;
+      engine.spawn(x, y, Math.cos(angle) * speed, Math.sin(angle) * speed, Math.random() < 0.5 ? "#38bdf8" : "#e2e8f0", 2.5 + Math.random() * 2.5, 900 + Math.random() * 300);
     }
   }
 }
@@ -904,21 +676,11 @@ export class CrystalHero extends Hero {
   palette = ["#f43f5e", "#d946ef", "#ffffff"];
   baseColor = "#f43f5e";
 
-  playIdle(_ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, _dt: number) {
-    if (Math.random() < 0.25) {
-      const dx = (Math.random() - 0.5) * 35;
-      const dy = (Math.random() - 0.5) * 35;
-      const vx = (Math.random() - 0.5) * 0.1;
-      const vy = (Math.random() - 0.5) * 0.1;
-      engine.spawn(center.x + dx, center.y + dy, vx, vy, "#f43f5e", 2.0, 900);
-    }
-  }
-
-  playCharge(ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, charge: number, _dt: number, handDistance: number = 120) {
+  playSummon(ctx: CanvasRenderingContext2D, center: { x: number; y: number }, engine: ParticleEngine, charge: number, _dt: number, handDistance: number = 120) {
     ctx.save();
-    ctx.strokeStyle = "rgba(217, 70, 239, 0.8)";
-    ctx.lineWidth = 1.5 + charge * 2.0;
-    ctx.shadowBlur = 12;
+    ctx.strokeStyle = "rgba(217, 70, 239, 0.85)";
+    ctx.lineWidth = 2.0 + charge * 2.5;
+    ctx.shadowBlur = 16;
     ctx.shadowColor = "#d946ef";
 
     const drawDiamond = (cx: number, cy: number, w: number, h: number) => {
@@ -931,43 +693,39 @@ export class CrystalHero extends Hero {
       ctx.stroke();
     };
 
-    const dw = Math.max(10, Math.min(65, handDistance * 0.25 + charge * 20));
-    const dh = Math.max(14, Math.min(90, handDistance * 0.35 + charge * 28));
+    const dw = Math.max(12, Math.min(70, handDistance * 0.28 + charge * 22));
+    const dh = Math.max(16, Math.min(95, handDistance * 0.38 + charge * 30));
     drawDiamond(center.x, center.y, dw, dh);
     ctx.restore();
 
-    if (Math.random() < 0.75) {
+    if (Math.random() < 0.7) {
       const angle = Math.random() * Math.PI * 2;
       const dist = 5 + Math.random() * 30;
-      const px = center.x + Math.cos(angle) * dist;
-      const py = center.y + Math.sin(angle) * dist;
-      engine.spawn(px, py, (Math.random() - 0.5) * 0.6, (Math.random() - 0.5) * 0.6, "#ffffff", 2.5, 500);
+      engine.spawn(center.x + Math.cos(angle) * dist, center.y + Math.sin(angle) * dist, (Math.random() - 0.5) * 0.6, (Math.random() - 0.5) * 0.6, "#ffffff", 2.8, 450);
     }
   }
 
   playImpact(engine: ParticleEngine, x: number, y: number) {
-    for (let i = 0; i < 80; i++) {
+    for (let i = 0; i < 75; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const speed = 2.5 + Math.random() * 6.5;
-      engine.spawn(
-        x, y,
-        Math.cos(angle) * speed,
-        Math.sin(angle) * speed,
-        Math.random() < 0.4 ? "#d946ef" : "#f43f5e",
-        2.5 + Math.random() * 3.0,
-        1000 + Math.random() * 400
-      );
+      const speed = 3.0 + Math.random() * 7.0;
+      engine.spawn(x, y, Math.cos(angle) * speed, Math.sin(angle) * speed, Math.random() < 0.4 ? "#d946ef" : "#f43f5e", 3.0 + Math.random() * 3.0, 950 + Math.random() * 350);
     }
   }
 }
 
-// 4. Projectile & Impact System manager
+// 4. STATE 2: UNLEASH - Kinetic Launch & Shockwave Manager
 export class ProjectileSystem {
   private projectiles: Projectile[] = [];
   private impacts: Impact[] = [];
+  private flashAlpha = 0.0;
+  private shockwaveRadius = 0;
 
   launch(x: number, y: number, vx: number, vy: number, color: string, type: string) {
     const angle = Math.atan2(vy, vx);
+    this.flashAlpha = 0.85; // Bright flash bloom on unleash
+    this.shockwaveRadius = 10;
+
     this.projectiles.push({
       id: Math.random().toString(),
       x,
@@ -975,18 +733,27 @@ export class ProjectileSystem {
       vx,
       vy,
       color,
-      size: 24,
+      size: 28,
       type,
       life: 2500,
       maxLife: 2500,
       angle,
-      rotationSpeed: type === "galaxy" ? 6.0 : 2.0
+      rotationSpeed: type === "galaxy" ? 6.5 : 2.5
     });
   }
 
   update(dt: number, width: number, height: number, engine: ParticleEngine, activeHero: Hero) {
     const deadProjs: Projectile[] = [];
     const deadImpacts: Impact[] = [];
+
+    // Fade flash bloom cleanly
+    if (this.flashAlpha > 0) {
+      this.flashAlpha = Math.max(0, this.flashAlpha - dt * 2.5);
+    }
+
+    if (this.shockwaveRadius > 0 && this.shockwaveRadius < Math.max(width, height)) {
+      this.shockwaveRadius += dt * 350;
+    }
 
     for (let i = 0; i < this.projectiles.length; i++) {
       const p = this.projectiles[i]!;
@@ -995,14 +762,15 @@ export class ProjectileSystem {
       p.y += p.vy * dt * 60;
       p.angle += p.rotationSpeed * dt;
 
+      // High-speed energy trail
       if (Math.random() < 0.85) {
-        const backAngle = p.angle + Math.PI + (Math.random() - 0.5) * 0.5;
-        const trailVx = Math.cos(backAngle) * 2.5 - p.vx * 0.1;
-        const trailVy = Math.sin(backAngle) * 2.5 - p.vy * 0.1;
-        engine.spawn(p.x, p.y, trailVx, trailVy, p.color, 3.5 + Math.random() * 2.5, 500 + Math.random() * 300);
+        const backAngle = p.angle + Math.PI + (Math.random() - 0.5) * 0.4;
+        const trailVx = Math.cos(backAngle) * 3.0 - p.vx * 0.1;
+        const trailVy = Math.sin(backAngle) * 3.0 - p.vy * 0.1;
+        engine.spawn(p.x, p.y, trailVx, trailVy, p.color, 4.0 + Math.random() * 2.5, 450 + Math.random() * 250);
       }
 
-      const offscreen = p.x < -50 || p.x > width + 50 || p.y < -50 || p.y > height + 50;
+      const offscreen = p.x < -60 || p.x > width + 60 || p.y < -60 || p.y > height + 60;
       if (p.life <= 0 || offscreen) {
         deadProjs.push(p);
         if (!offscreen) {
@@ -1014,7 +782,7 @@ export class ProjectileSystem {
     for (let i = 0; i < this.impacts.length; i++) {
       const imp = this.impacts[i]!;
       imp.life -= dt * 1000;
-      imp.radius += 120 * dt;
+      imp.radius += 140 * dt;
       if (imp.life <= 0) {
         deadImpacts.push(imp);
       }
@@ -1033,7 +801,7 @@ export class ProjectileSystem {
       type,
       life: 600,
       maxLife: 600,
-      radius: 5
+      radius: 8
     });
 
     hero.playImpact(engine, x, y);
@@ -1043,6 +811,21 @@ export class ProjectileSystem {
     ctx.save();
     ctx.globalCompositeOperation = "screen";
 
+    // 1. Flash Bloom & Shockwave on Unleash
+    if (this.flashAlpha > 0.01) {
+      ctx.fillStyle = `rgba(255, 255, 255, ${this.flashAlpha})`;
+      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    }
+
+    if (this.shockwaveRadius > 10 && this.shockwaveRadius < Math.max(ctx.canvas.width, ctx.canvas.height)) {
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+      ctx.lineWidth = 3.0;
+      ctx.beginPath();
+      ctx.arc(ctx.canvas.width / 2, ctx.canvas.height / 2, this.shockwaveRadius, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // 2. High-Speed Projectiles
     for (let i = 0; i < this.projectiles.length; i++) {
       const p = this.projectiles[i]!;
 
@@ -1050,48 +833,29 @@ export class ProjectileSystem {
       ctx.translate(p.x, p.y);
       ctx.rotate(p.angle);
 
-      ctx.shadowBlur = p.size * 2.5;
+      ctx.shadowBlur = p.size * 2.8;
       ctx.shadowColor = p.color;
 
-      if (p.type === "galaxy") {
-        const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, p.size);
-        grad.addColorStop(0, "#ffffff");
-        grad.addColorStop(0.5, "#a855f7");
-        grad.addColorStop(1.0, "transparent");
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(0, 0, p.size, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (p.type === "lightning") {
-        ctx.strokeStyle = "#ffffff";
-        ctx.lineWidth = 3.5;
-        ctx.beginPath();
-        ctx.moveTo(-p.size, 0);
-        ctx.lineTo(0, -10);
-        ctx.lineTo(0, 10);
-        ctx.lineTo(p.size, 0);
-        ctx.stroke();
-      } else {
-        const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, p.size);
-        grad.addColorStop(0, "#ffffff");
-        grad.addColorStop(0.6, p.color);
-        grad.addColorStop(1.0, "transparent");
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(0, 0, p.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
+      const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, p.size);
+      grad.addColorStop(0, "#ffffff");
+      grad.addColorStop(0.5, p.color);
+      grad.addColorStop(1.0, "transparent");
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(0, 0, p.size, 0, Math.PI * 2);
+      ctx.fill();
 
       ctx.restore();
     }
 
+    // 3. Impact Shockwaves
     for (let i = 0; i < this.impacts.length; i++) {
       const imp = this.impacts[i]!;
       const opacity = Math.max(0, imp.life / imp.maxLife);
       ctx.strokeStyle = imp.color;
-      ctx.lineWidth = 4.0 * opacity;
+      ctx.lineWidth = 4.5 * opacity;
       ctx.globalAlpha = opacity;
-      ctx.shadowBlur = 15;
+      ctx.shadowBlur = 18;
       ctx.shadowColor = imp.color;
 
       ctx.beginPath();
@@ -1105,5 +869,7 @@ export class ProjectileSystem {
   clear() {
     this.projectiles = [];
     this.impacts = [];
+    this.flashAlpha = 0;
+    this.shockwaveRadius = 0;
   }
 }

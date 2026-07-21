@@ -321,6 +321,7 @@ export default function Home() {
   const aiDelayRef = useRef(aiDelay);
 
   const activeHeroRef = useRef(activeHero);
+  const summonProgressRef = useRef(0.0);
   useEffect(() => { activeHeroRef.current = activeHero; }, [activeHero]);
 
   useEffect(() => { activeToolRef.current = activeTool; }, [activeTool]);
@@ -964,8 +965,15 @@ export default function Home() {
             particleEngineRef.current.update(particleDt);
             projectileSystemRef.current.update(particleDt, rect.width, rect.height, particleEngineRef.current, activeHeroRef.current);
             
-            // Render active visual triggers in world space at heroMidpoint
+            // Render active visual triggers in world space at heroMidpoint (2-State Movie-Quality Pipeline: SUMMON & UNLEASH)
             if (heroMidpoint) {
+              if (bothHandsVisible) {
+                summonProgressRef.current = Math.min(1.0, summonProgressRef.current + particleDt * 2.0); // 500ms sequential ignition
+              } else {
+                summonProgressRef.current = Math.max(0.0, summonProgressRef.current - particleDt * 3.0);
+              }
+
+              // STATE 1: SUMMON - Sequential Fingertip Energy Bridges & Core Formation
               if (bothHandsVisible && p.hand.leftHandLandmarks && p.hand.rightHandLandmarks) {
                 FingertipBridgeRenderer.renderBridges(
                   ctx,
@@ -975,18 +983,13 @@ export default function Home() {
                   particleEngineRef.current,
                   rect.width,
                   rect.height,
-                  chargeLevelRef.current
+                  chargeLevelRef.current,
+                  summonProgressRef.current
                 );
               }
 
-              if (chargeLevelRef.current >= 0.95) {
-                activeHeroRef.current.playSummoning(ctx, heroMidpoint, particleEngineRef.current, particleDt, rect.width, rect.height);
-                activeHeroRef.current.playCharge(ctx, heroMidpoint, particleEngineRef.current, chargeLevelRef.current, particleDt, heroHandDist);
-              } else if (chargeLevelRef.current < 0.15) {
-                activeHeroRef.current.playIdle(ctx, heroMidpoint, particleEngineRef.current, particleDt);
-              } else {
-                activeHeroRef.current.playCharge(ctx, heroMidpoint, particleEngineRef.current, chargeLevelRef.current, particleDt, heroHandDist);
-              }
+              // Play elemental core summoning VFX
+              activeHeroRef.current.playSummon(ctx, heroMidpoint, particleEngineRef.current, chargeLevelRef.current, particleDt, heroHandDist);
             }
 
             particleEngineRef.current.draw(ctx);
