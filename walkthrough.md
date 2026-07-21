@@ -1,27 +1,58 @@
-# VisionCanvas AR | "Less UI, More Interaction" Spatial CAD Report
+# VisionCanvas AR | 5 Core Managers Architecture Report
 
-Engineering Studio has been refactored according to the core philosophy: **"Less UI, More Interaction."**
+VisionCanvas AR has been refactored into a **Game Engine-Class Spatial Computing Platform** inspired by Unreal Engine, Unity, and Apple Reality Composer using `SpatialEngineCore.ts`.
 
 ---
 
-## 🎨 Design Philosophy & Principles
+## 🏛️ Architecture & 5 Core Managers
 
-1. **Clean Spatial Canvas**:
-   * **Hidden Measurements & Labels**: Dimensions and object names are hidden by default, appearing **ONLY when an object is selected**.
-   * **Subtle CAD Grid**: Grid is rendered at subtle $10-15\%$ opacity (`rgba(255,255,255,0.06)`), highlighting prominently only during placement.
-   * **Zero Debug Clutter**: Landmark skeleton lines, particles, and debug overlays are completely disabled while in Engineering Studio.
+```mermaid
+graph TD
+    SE[SpatialEngineCore] --> MM[ModeManager]
+    SE --> RM[RenderManager]
+    SE --> SM[SceneManager]
+    SE --> ResM[ResourceManager]
+    SE --> DM[DebugManager]
 
-2. **Intelligent Component Behaviors**:
-   * **Wall / Pipe / Beam**: Tap start point $\rightarrow$ Drag rubberband line $\rightarrow$ Release. Component stretches automatically with live millimeter measurement.
-   * **Door / Window**: Hover over a wall span $\rightarrow$ Automatic magnetic snap and rotation preview $\rightarrow$ Release to embed opening into wall.
-   * **Discrete Components**: Gears, motors, bearings, sensors, and batteries place cleanly with subtle snap guides.
+    MM -->|Activates strictly 1 workspace| W1[Free Draw / Smart Writing / Hero / Build / Engineering]
+    SM -->|Creates / Destroys Scene Graph| SG[Scene Graph]
+    RM -->|Single 60Hz Loop| RL[Unified RequestAnimationFrame Loop]
+    ResM -->|Recycles & Disposes| Res[Timers, Canvas Layers, Memory]
+    DM -->|Scoped to Dev Mode| DBG[Developer Debug Panel]
+```
 
-3. **Performance**:
-   * Consistently maintains $30-60\text{ FPS}$ with zero allocations in the render loop.
+### 1. `ModeManager`
+*   Activates **ONLY ONE** workspace at a time (`Free Draw`, `Smart Writing`, `Sketch Recognition`, `Hero Mode`, `Spatial Build`, `Engineering Studio`).
+*   Disposes of the departing workspace before activating the target mode.
+
+### 2. `RenderManager`
+*   Maintains a **single unified 60Hz render loop**.
+*   Never renders inactive, hidden, or debug systems.
+
+### 3. `SceneManager`
+*   Each mode owns its own scene graph. Entering a mode creates the scene graph; leaving a mode destroys it (`destroyScene()`).
+
+### 4. `ResourceManager`
+*   Automatically tracks and disposes timers (`clearTimeout`), canvas layers, memory buffers, and worker queues.
+
+### 5. `DebugManager`
+*   Strictly scopes debug overlays to `devMode === true`. Production mode renders 0 debug overlays or landmark lines.
+
+---
+
+## 📊 Architecture Health & Leak Resolution
+
+| System | Pre-Refactor | Post-Refactor |
+| :--- | :--- | :--- |
+| **Workspace Isolation** | Features ran in parallel | Strict 1-active workspace mode isolation |
+| **Scene Graph Lifecycle** | Objects persisted across modes | Scene graph created on enter, destroyed on exit |
+| **Render Pipelines** | Multiple loop subscriptions | 1 unified 60Hz RenderManager loop |
+| **Resource Disposal** | Orphaned timers & layers | `ResourceManager.disposeAll()` automatic purge |
+| **Debug Overlays** | Leaked into production rendering | Scoped strictly to `DebugManager` / `devMode` |
 
 ---
 
 ## 🚀 GitHub Repository Deployment
 *   **Repository**: **[github.com/mahitss/Canvas_Air](https://github.com/mahitss/Canvas_Air.git)**
 *   **Branch**: `main`
-*   **Commit Message**: `refactor: Redesign Engineering Studio with 'Less UI, More Interaction' CAD philosophy`
+*   **Commit Message**: `refactor: Implement 5 Core Managers (ModeManager, RenderManager, SceneManager, ResourceManager, DebugManager) in SpatialEngineCore`

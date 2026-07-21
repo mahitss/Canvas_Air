@@ -1090,7 +1090,8 @@ export default function Home() {
               }
             }
 
-            // Render clean Spatial CAD view (Grid visible ONLY during placement/editing)
+            engineeringEngineRef.current.update(0.016);
+            // Render clean Spatial CAD view
             engineeringEngineRef.current.render(ctx, rect.width, rect.height, smoothIndex, activeCadTypeRef.current);
           } else {
             // ----------------------------------------------------
@@ -2344,7 +2345,7 @@ export default function Home() {
                       : "text-zinc-400 hover:text-white hover:bg-zinc-800"
                   }`}
                 >
-                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: comp.color }} />
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: comp.material.fillColor }} />
                   <span>{comp.name}</span>
                 </button>
               ))}
