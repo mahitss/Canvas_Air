@@ -277,7 +277,9 @@ export default function Home() {
 
   // Developer Mode toggle (persisted)
   const [devMode, setDevMode] = useState(false);
+  const devModeRef = useRef(false);
   useEffect(() => {
+    devModeRef.current = devMode;
     DebugManager.setDevMode(devMode);
   }, [devMode]);
 
@@ -1056,12 +1058,14 @@ export default function Home() {
             particleEngineRef.current.draw(ctx);
             projectileSystemRef.current.draw(ctx);
 
-            // Draw right and left hand skeletons for visual placement guidelines
-            if (p.hand.leftHandLandmarks) {
-              p.renderer?.drawSkeleton(ctx, p.hand.leftHandLandmarks, rect.width, rect.height, "rgba(244, 63, 94, 0.35)");
-            }
-            if (p.hand.rightHandLandmarks) {
-              p.renderer?.drawSkeleton(ctx, p.hand.rightHandLandmarks, rect.width, rect.height, "rgba(16, 185, 129, 0.35)");
+            // Draw right and left hand skeletons strictly in Developer Mode
+            if (devModeRef.current) {
+              if (p.hand.leftHandLandmarks) {
+                p.renderer?.drawSkeleton(ctx, p.hand.leftHandLandmarks, rect.width, rect.height, "rgba(244, 63, 94, 0.35)");
+              }
+              if (p.hand.rightHandLandmarks) {
+                p.renderer?.drawSkeleton(ctx, p.hand.rightHandLandmarks, rect.width, rect.height, "rgba(16, 185, 129, 0.35)");
+              }
             }
 
             // Sync energy meter charging bar directly in zero-cost DOM selectors
@@ -1106,7 +1110,7 @@ export default function Home() {
 
             voxelEngineRef.current.render(ctx, rect.width, rect.height, cursorGrid);
 
-            if (p.hand.rightHandLandmarks) {
+            if (devModeRef.current && p.hand.rightHandLandmarks) {
               p.renderer?.drawSkeleton(ctx, p.hand.rightHandLandmarks, rect.width, rect.height, "rgba(56, 189, 248, 0.4)");
             }
           } else if (drawModeRef.current === "engineering") {

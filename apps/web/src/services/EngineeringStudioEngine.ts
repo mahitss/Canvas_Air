@@ -355,11 +355,11 @@ export class EngineeringStudioEngine {
 
     const isPlacing = cursorPos !== null && (activeType !== null || this.activeWallStart !== null);
 
-    // 1. Grid Fade Transition (10-15% thin lines, every 5th line slightly brighter)
-    const targetGridAlpha = isPlacing ? 0.16 : 0.06;
+    // 1. Grid Fade Transition (5-8% ultra-subtle thin lines, every 5th line 12%)
+    const targetGridAlpha = isPlacing ? 0.14 : 0.05;
     this.gridFadeAlpha += (targetGridAlpha - this.gridFadeAlpha) * 0.15;
 
-    ctx.lineWidth = 0.8;
+    ctx.lineWidth = 0.6;
     let colIdx = 0;
     for (let x = 0; x < width; x += this.gridStep) {
       colIdx++;
