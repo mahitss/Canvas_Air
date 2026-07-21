@@ -49,7 +49,7 @@ import {
 } from "../services/HeroEngine";
 import { VoxelBuildEngine, VoxelBlock } from "../services/VoxelBuildEngine";
 import { EngineeringStudioEngine, EngineeringDomain, ParametricComponent } from "../services/EngineeringStudioEngine";
-import { ModeManager, ResourceManager } from "../services/ModeManager";
+import { ModeManager, RenderManager, SceneManager, ResourceManager, DebugManager } from "../services/SpatialEngineCore";
 
 const PRESET_COLORS = [
   "#ef4444", // Red
@@ -241,12 +241,15 @@ export default function Home() {
   const activeCadTypeRef = useRef<ParametricComponent["type"] | null>("wall");
   useEffect(() => { activeCadTypeRef.current = activeCadType; }, [activeCadType]);
 
-  // Centralized Spatial Mode Manager & Resource Engine
-  const modeManagerRef = useRef(new ModeManager());
+  // 5 Core Managers (Spatial Engine Architecture)
+  const sceneManagerRef = useRef(new SceneManager());
+  const modeManagerRef = useRef(new ModeManager(sceneManagerRef.current));
+  const renderManagerRef = useRef(new RenderManager());
+
   useEffect(() => {
     ResourceManager.disposeAll();
-    if (modeManagerRef.current) {
-      console.log(`[ModeManager] Active mode: ${drawMode} | Previous: ${modeManagerRef.current.getActiveModeName()}`);
+    if (modeManagerRef.current && renderManagerRef.current) {
+      console.log(`[SpatialEngineCore] Mode Switched: ${drawMode} | Scene Manager Objects: ${sceneManagerRef.current.getSceneObjects().length}`);
     }
   }, [drawMode]);
 
@@ -268,6 +271,9 @@ export default function Home() {
 
   // Developer Mode toggle (persisted)
   const [devMode, setDevMode] = useState(false);
+  useEffect(() => {
+    DebugManager.setDevMode(devMode);
+  }, [devMode]);
   const [latencyPrediction, setLatencyPrediction] = useState(true); // Prediction enabled checkbox
 
   // Collapsible Settings Accordion Sections
