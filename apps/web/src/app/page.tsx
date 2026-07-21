@@ -1079,7 +1079,7 @@ export default function Home() {
               } else {
                 consecutivePinchFramesRef.current = 0;
               }
-              if (consecutivePinchFramesRef.current >= 3) {
+              if (consecutivePinchFramesRef.current >= 1) {
                 shouldDraw = true;
                 pinchLostTimeRef.current = null;
               }
