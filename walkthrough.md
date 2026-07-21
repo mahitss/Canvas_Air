@@ -1,48 +1,29 @@
-# VisionCanvas AR | Apple Vision Pro & Raycast / Linear UI/UX Redesign Report
+# VisionCanvas AR | Zero-Noise Visual Polish & Minimalist Overhaul
 
-VisionCanvas AR has undergone a complete UI/UX transformation into a **commercial spatial computing product interface** inspired by Apple Vision Pro, Raycast, Linear, Figma, and Arc Browser.
-
----
-
-## 🎨 Layout Architecture & Aesthetics
-
-```mermaid
-graph TD
-    NV[Top Floating Navigation Bar] --> M[Mode Pill Selector & VisionCanvas Logo]
-    LD[Left Floating Tool Dock] --> T[Pen / Eraser / Shapes / Text / Undo / Redo / Clear / Export]
-    RC[Right Context-Sensitive Panel] --> C[Air Draw / Smart Writing / Hero / Build / Engineering Props]
-    BS[Bottom Contextual Status HUD] --> S[60 FPS • Tool • Gesture Status • Tracking 100%]
-```
-
-### 1. Top Floating Navigation Bar
-*   **VisionCanvas AR Logo Badge**: Metallic gradient badge with `#4F8CFF` glow.
-*   **Mode Selector Cards**: Glassmorphic pill cards (`Free Draw`, `Air Write ✍️`, `Recognition 📐`, `Hero VFX ⚡`, `Spatial Voxel 🧱`, `Engineering 🏗️`).
-*   **Hand Selector & Quick Tools**: Dedicated `Right`, `Left`, `Auto` hand toggles, Spatial Onboarding Modal trigger, and Developer Telemetry button.
-
-### 2. Left Floating Tool Dock
-*   **Vertical Floating Glass Dock**: `Pen`, `Eraser`, `Line`, `Rectangle`, `Circle`, `Text`, `Undo`, `Redo`, `Clear Canvas`, and `Export AR Snapshot`.
-*   **Interactive Micro-Animations**: Active tools glow softly with `#4F8CFF` drop shadows, scaling up on hover.
-
-### 3. Right Context-Sensitive Panel
-*   **Air Draw**: Color palette, brush size slider, stroke smoothing slider, glow intensity slider, and solid/neon brush effect toggles.
-*   **Smart Writing**: Language selector (`English`, `Spanish`, `French`, `German`, `CJK`), confidence threshold slider, and auto-correct toggle.
-*   **2-State Hero Mode**: Power element selector (Galaxy, Lightning, Fire, Ice, Water, Wind, Solar, Lunar, Crystal).
-*   **Spatial Voxel Build**: Voxel block material selector (`Neon`, `Glass`, `Ice`, `Lava`, `Metal`, `Stone`, `Wood`).
-*   **Engineering Studio**: Parametric domain switcher (`Architecture`, `Mechanical`, `Electrical`, `Robotics`) & component catalog.
-
-### 4. Bottom Contextual Status HUD
-*   Ultra-minimal floating pill showing `60 FPS`, active tool, gesture status (`Air Pen ☝️ / Pinch 🤏`), and tracking quality status.
-
-### 5. Web Audio UI Sound Synthesizer (`SoundFX.ts`)
-*   Synthesized soft glass chimes, click pops, hover feedback, and spatial placement sounds.
-
-### 6. Interactive Spatial Onboarding
-*   First-launch glassmorphic onboarding modal guiding users through mid-air hand gestures.
+VisionCanvas AR has undergone a complete **Zero-Noise Visual Polish & Minimalist Overhaul** so the webcam feed and user creation take center stage like commercial Apple WWDC software.
 
 ---
 
-## 🚀 GitHub Repository Deployment
+## 🎨 Visual Noise Elimination Summary
+
+### 1. Developer Mode Scoped Debug Visuals
+*   **Disabled by Default**: MediaPipe landmark points, skeleton lines, hand IDs, tracking vectors, gesture helper lines, debug bounding boxes, coordinate systems, permanent measurements, and permanent labels are disabled by default (`devMode === false`).
+*   **Developer Mode Toggle**: Skeleton drawings and pipeline telemetry overlays render strictly when Developer Telemetry is toggled ON (`devMode === true`).
+
+### 2. CAD Construction Grid Subtlety
+*   **Grid Opacity**: Construction grid in Engineering Studio renders at an ultra-subtle $5\%$ opacity (`rgba(255,255,255,0.05)`), every $5^{\text{th}}$ line at $12\%$.
+*   **Placement Highlighting**: Brightens slightly ($14\%$) only during active component placement, smoothly fading back to $5\%$ idle opacity.
+
+### 3. Apple Vision Pro Minimalist Interface
+*   **Floating Navigation Header**: VisionCanvas AR logo badge, mode switcher pill cards, hand selector toggles, onboarding trigger, and developer toggle.
+*   **Icon-Only Left Tool Dock**: Expandable on hover with soft `#4F8CFF` active glows (`Pen`, `Eraser`, `Line`, `Rectangle`, `Circle`, `Text`, `Undo`, `Redo`, `Clear`, `Export`).
+*   **Contextual Right Panel**: Displayed ONLY when active (Air Draw brush settings, Hero Mode power controls, Spatial Voxel material selection, Engineering Studio parametric domain selection).
+*   **Single Status HUD Pill**: Minimal bottom status pill displaying `60 FPS`, active tool, gesture state (`Air Pen ☝️ / Pinch 🤏`), and tracking quality status.
+
+---
+
+## 🚀 GitHub Repository Deployment Status
 *   **Repository**: **[github.com/mahitss/Canvas_Air](https://github.com/mahitss/Canvas_Air.git)**
 *   **Branch**: `main`
-*   **Latest Commit**: `38d07ae` - *feat: Complete UI/UX redesign inspired by Apple Vision Pro, Raycast, Linear, and Arc Browser*
-*   **Build Status**: **30 / 30 packages built with 0 errors**.
+*   **Latest Commit**: `92ab29b` - *fix: Eliminate all production visual noise, scope skeleton rendering strictly to devMode, and reduce CAD grid opacity*
+*   **Monorepo Build**: **30 / 30 packages compiled in 44.7s with 0 errors**.

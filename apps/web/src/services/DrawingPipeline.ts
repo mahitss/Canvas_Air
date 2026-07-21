@@ -526,42 +526,26 @@ export class StrokeEngine {
   private digitalInkEngine = new DigitalInkEngine();
 
   startStroke(pt: { x: number; y: number }, settings: any) {
-    console.log(`[LOG] startStroke() called at: (${pt.x.toFixed(1)}, ${pt.y.toFixed(1)})`);
+    console.log(`[StrokeEngine] startStroke() at (${pt.x.toFixed(1)}, ${pt.y.toFixed(1)})`);
     this.redoStack = [];
     const coordinate = { x: pt.x, y: pt.y };
     
-    const isSmart = settings.isSmartWriting === true;
+    this.digitalInkEngine.startStroke(coordinate.x, coordinate.y);
+    const preview = this.digitalInkEngine.getPreviewPoints();
 
-    if (isSmart) {
-      this.digitalInkEngine.startStroke(coordinate.x, coordinate.y);
-      const preview = this.digitalInkEngine.getPreviewPoints();
-
-      this.currentStroke = {
-        points: preview as any,
-        rawPoints: [{ ...coordinate }],
-        isSmartWriting: true,
-        color: settings.color,
-        size: settings.size,
-        glowIntensity: 25,
-        effect: "neon",
-        tool: settings.tool,
-        text: settings.tool === "text" ? settings.text : undefined
-      };
-    } else {
-      this.currentStroke = {
-        points: [coordinate],
-        isSmartWriting: false,
-        color: settings.color,
-        size: settings.size,
-        glowIntensity: settings.glowIntensity,
-        effect: settings.effect,
-        tool: settings.tool,
-        text: settings.tool === "text" ? settings.text : undefined
-      };
-    }
+    this.currentStroke = {
+      points: preview.length > 0 ? (preview as any) : [coordinate],
+      rawPoints: [{ ...coordinate }],
+      isSmartWriting: settings.isSmartWriting === true,
+      color: settings.color,
+      size: settings.size,
+      glowIntensity: settings.glowIntensity,
+      effect: settings.effect,
+      tool: settings.tool,
+      text: settings.tool === "text" ? settings.text : undefined
+    };
     
     this.isDrawing = true;
-    console.log(`[LOG] Stroke buffer created. CurrentStroke ID: ${this.strokes.length}, Points count: 1`);
   }
 
   addPoint(pt: { x: number; y: number }, settings: any) {
@@ -569,81 +553,36 @@ export class StrokeEngine {
 
     const coordinate = { x: pt.x, y: pt.y };
 
-    if (this.currentStroke.isSmartWriting) {
-      // Smart Writing mode: update Virtual Pen spring physics and get preview spline
+    if (settings.tool === "pen" || settings.tool === "eraser") {
       const dt = settings.dt || 0.016;
       this.digitalInkEngine.update(coordinate.x, coordinate.y, dt, true);
-      this.currentStroke.points = this.digitalInkEngine.getPreviewPoints() as any;
-      return;
-    }
-
-    // Free Draw Mode logic (remains 100% unmodified and responsive!)
-    if (settings.tool === "pen" || settings.tool === "eraser") {
-      const points = this.currentStroke.points;
-      const lastPt = points[points.length - 1];
-      if (lastPt) {
-        const delta = Math.sqrt((coordinate.x - lastPt.x) ** 2 + (coordinate.y - lastPt.y) ** 2);
-        
-        // 1. Ignore micro-movements below 2.5px to eliminate tremor jitter
-        if (delta < 2.5) {
-          return;
-        }
-
-        // 2. Split stroke if coordinate jump distance > 105px
-        if (delta > 105) {
-          console.log(`[LOG] continueStroke() split triggered. Jump delta: ${delta.toFixed(1)}px`);
-          this.strokes.push(this.currentStroke);
-          this.currentStroke = {
-            points: [coordinate],
-            color: settings.color,
-            size: settings.size,
-            glowIntensity: settings.glowIntensity,
-            effect: settings.effect,
-            tool: settings.tool,
-            text: undefined
-          };
-        } else {
-          // 3. Dynamically interpolate points along the path when MediaPipe skips frames
-          if (delta > 15) {
-            const steps = Math.floor(delta / 10);
-            console.log(`[LOG] Interpolating ${steps - 1} points for skip delta: ${delta.toFixed(1)}px`);
-            for (let i = 1; i < steps; i++) {
-              const ratio = i / steps;
-              this.currentStroke.points.push({
-                x: lastPt.x + (coordinate.x - lastPt.x) * ratio,
-                y: lastPt.y + (coordinate.y - lastPt.y) * ratio
-              });
-            }
-          }
-          this.currentStroke.points.push(coordinate);
-          console.log(`[LOG] Point insertion. Points count: ${this.currentStroke.points.length}`);
-        }
+      const resampledSpline = this.digitalInkEngine.getPreviewPoints();
+      if (resampledSpline.length > 0) {
+        this.currentStroke.points = resampledSpline as any;
       } else {
         this.currentStroke.points.push(coordinate);
       }
     } else {
-      // Shapes overwrite points[1]
+      // Shapes (line, rect, circle) overwrite end point
       this.currentStroke.points[1] = coordinate;
     }
   }
 
   endStroke(originalSettings?: any) {
     if (this.currentStroke) {
-      if (this.currentStroke.isSmartWriting) {
-        // Finalize Smart Writing stroke via Digital Ink Engine
+      if (this.currentStroke.tool === "pen" || this.currentStroke.tool === "eraser") {
         const finalizedSpline = this.digitalInkEngine.finalizeStroke();
         if (finalizedSpline.length > 0) {
           this.currentStroke.points = finalizedSpline as any;
         }
-        
-        // Restore user's actual brush styling choices
-        if (originalSettings) {
-          this.currentStroke.effect = originalSettings.effect;
-          this.currentStroke.glowIntensity = originalSettings.glowIntensity;
-        }
       }
 
-      console.log(`[LOG] endStroke() called. Committing stroke with ${this.currentStroke.points.length} points.`);
+      if (originalSettings) {
+        this.currentStroke.effect = originalSettings.effect;
+        this.currentStroke.glowIntensity = originalSettings.glowIntensity;
+      }
+
+      console.log(`[StrokeEngine] endStroke() committed with ${this.currentStroke.points.length} resampled spline points.`);
       this.strokes.push(this.currentStroke);
       this.currentStroke = null;
     }
