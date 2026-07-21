@@ -1,58 +1,28 @@
-# VisionCanvas AR | 5 Core Managers Architecture Report
+# VisionCanvas AR | Apple Vision Pro-Class Spatial Engineering Report
 
-VisionCanvas AR has been refactored into a **Game Engine-Class Spatial Computing Platform** inspired by Unreal Engine, Unity, and Apple Reality Composer using `SpatialEngineCore.ts`.
-
----
-
-## 🏛️ Architecture & 5 Core Managers
-
-```mermaid
-graph TD
-    SE[SpatialEngineCore] --> MM[ModeManager]
-    SE --> RM[RenderManager]
-    SE --> SM[SceneManager]
-    SE --> ResM[ResourceManager]
-    SE --> DM[DebugManager]
-
-    MM -->|Activates strictly 1 workspace| W1[Free Draw / Smart Writing / Hero / Build / Engineering]
-    SM -->|Creates / Destroys Scene Graph| SG[Scene Graph]
-    RM -->|Single 60Hz Loop| RL[Unified RequestAnimationFrame Loop]
-    ResM -->|Recycles & Disposes| Res[Timers, Canvas Layers, Memory]
-    DM -->|Scoped to Dev Mode| DBG[Developer Debug Panel]
-```
-
-### 1. `ModeManager`
-*   Activates **ONLY ONE** workspace at a time (`Free Draw`, `Smart Writing`, `Sketch Recognition`, `Hero Mode`, `Spatial Build`, `Engineering Studio`).
-*   Disposes of the departing workspace before activating the target mode.
-
-### 2. `RenderManager`
-*   Maintains a **single unified 60Hz render loop**.
-*   Never renders inactive, hidden, or debug systems.
-
-### 3. `SceneManager`
-*   Each mode owns its own scene graph. Entering a mode creates the scene graph; leaving a mode destroys it (`destroyScene()`).
-
-### 4. `ResourceManager`
-*   Automatically tracks and disposes timers (`clearTimeout`), canvas layers, memory buffers, and worker queues.
-
-### 5. `DebugManager`
-*   Strictly scopes debug overlays to `devMode === true`. Production mode renders 0 debug overlays or landmark lines.
+Engineering Studio has been elevated to an **Apple Vision Pro & Reality Composer Pro Quality Spatial Engineering Platform**.
 
 ---
 
-## 📊 Architecture Health & Leak Resolution
+## 🎨 Visual Design, Materials & Animation Lifecycle
 
-| System | Pre-Refactor | Post-Refactor |
-| :--- | :--- | :--- |
-| **Workspace Isolation** | Features ran in parallel | Strict 1-active workspace mode isolation |
-| **Scene Graph Lifecycle** | Objects persisted across modes | Scene graph created on enter, destroyed on exit |
-| **Render Pipelines** | Multiple loop subscriptions | 1 unified 60Hz RenderManager loop |
-| **Resource Disposal** | Orphaned timers & layers | `ResourceManager.disposeAll()` automatic purge |
-| **Debug Overlays** | Leaked into production rendering | Scoped strictly to `DebugManager` / `devMode` |
+### 1. Spatial Material System
+*   **Architectural Materials**: Realistic Concrete (`#475569`), Glass (`rgba(56,189,248,0.35)`), Wood (`#78350f`), Steel (`#1e293b`).
+*   **Mechanical Materials**: Brushed Aluminum (`#0284c7`), Carbon Fiber (`#7e22ce`), Steel (`#475569`).
+*   **Electrical & Robotics**: PCB Green (`#15803d`), Copper (`#be123c`), Matte Carbon (`#0f766e`).
+*   **Depth & Shadows**: Realistic ambient drop shadows (`shadowBlur: 14-24`, `shadowOffsetY: 4-5px`) provide tangible spatial depth instead of flat glowing outlines.
+
+### 2. Contextual Labels & Dimensions
+*   **Hidden by Default**: Measurements, length readouts, and object names remain hidden during view mode.
+*   **Selected Object Focus**: Dimensions, length (`mm`), and rotation (`°`) render **ONLY when an object is selected**.
+
+### 3. Subtle Grid & Materialize Animations
+*   **Grid Fade System**: Grid lines render at a subtle $6\%$ opacity (`rgba(255,255,255,0.06)`) with every $5^{\text{th}}$ line highlighted (`13%`), smoothly fading to $16\%$ only during active component placement.
+*   **Placement Materialize Animation**: Components materialize with a soft scale ($0.2 \rightarrow 1.0$) and alpha fade-in transition.
 
 ---
 
 ## 🚀 GitHub Repository Deployment
 *   **Repository**: **[github.com/mahitss/Canvas_Air](https://github.com/mahitss/Canvas_Air.git)**
 *   **Branch**: `main`
-*   **Commit Message**: `refactor: Implement 5 Core Managers (ModeManager, RenderManager, SceneManager, ResourceManager, DebugManager) in SpatialEngineCore`
+*   **Commit Message**: `feat: Elevate Engineering Studio to Apple Vision Pro quality spatial engineering platform`

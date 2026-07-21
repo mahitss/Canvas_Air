@@ -248,8 +248,13 @@ export default function Home() {
 
   useEffect(() => {
     ResourceManager.disposeAll();
+    particleEngineRef.current.clear();
+    projectileSystemRef.current.clear();
+    if (pipelineRef.current) {
+      pipelineRef.current.stroke.clear();
+    }
     if (modeManagerRef.current && renderManagerRef.current) {
-      console.log(`[SpatialEngineCore] Mode Switched: ${drawMode} | Scene Manager Objects: ${sceneManagerRef.current.getSceneObjects().length}`);
+      console.log(`[SpatialEngineCore] Mode Switched: ${drawMode} | Scene Objects Purged`);
     }
   }, [drawMode]);
 
