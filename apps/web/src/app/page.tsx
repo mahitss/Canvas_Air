@@ -50,6 +50,7 @@ import {
 import { VoxelBuildEngine, VoxelBlock } from "../services/VoxelBuildEngine";
 import { EngineeringStudioEngine, EngineeringDomain, ParametricComponent } from "../services/EngineeringStudioEngine";
 import { ModeManager, RenderManager, SceneManager, ResourceManager, DebugManager } from "../services/SpatialEngineCore";
+import { SoundFX } from "../services/SoundFX";
 
 const PRESET_COLORS = [
   "#ef4444", // Red
@@ -279,6 +280,32 @@ export default function Home() {
   useEffect(() => {
     DebugManager.setDevMode(devMode);
   }, [devMode]);
+
+  // Onboarding Modal State
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const onboarded = localStorage.getItem("visioncanvas_onboarded");
+      if (!onboarded) {
+        setShowOnboarding(true);
+      }
+    }
+  }, []);
+
+  const completeOnboarding = () => {
+    setShowOnboarding(false);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("visioncanvas_onboarded", "true");
+    }
+    SoundFX.playPlacement();
+  };
+
+  const changeModeWithSound = (newMode: typeof drawMode) => {
+    SoundFX.playClick();
+    setDrawMode(newMode);
+  };
+
   const [latencyPrediction, setLatencyPrediction] = useState(true); // Prediction enabled checkbox
 
   // Collapsible Settings Accordion Sections
@@ -1549,167 +1576,149 @@ export default function Home() {
         }}
       />
 
-      {/* 4. Top Utility Control Panel with Vision Pro Glassmorphism & Status Badges */}
-      <header className="absolute top-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-5 px-5 py-2.5 bg-zinc-950/80 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl">
-        <div className="flex items-center gap-2">
-          <h1 className="text-sm font-bold tracking-tight text-white select-none flex items-center gap-1.5">
-            VisionCanvas <span className="text-indigo-400 font-extrabold font-mono">AR</span>
-          </h1>
-          <span className="px-2 py-0.5 text-[9px] uppercase font-bold tracking-wider rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-            Spatial
-          </span>
+      {/* 4. TOP FLOATING NAVIGATION BAR (Apple Vision Pro & Raycast floating style) */}
+      <header className="absolute top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-2 bg-zinc-950/80 border border-white/10 backdrop-blur-2xl rounded-2xl shadow-2xl transition-all">
+        {/* VisionCanvas AR Logo Badge */}
+        <div className="flex items-center gap-2 pr-2 border-r border-white/10 select-none">
+          <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center text-white font-extrabold text-xs shadow-lg shadow-indigo-500/30">
+            V
+          </div>
+          <span className="font-extrabold text-sm tracking-tight text-white">VisionCanvas <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded-md bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">AR</span></span>
         </div>
 
-        <div className="h-5 w-[1px] bg-zinc-800/80" />
-
-        {/* Group 1: Mode Selectors */}
-        <div className="flex items-center gap-1.5 bg-zinc-900/80 p-1 rounded-xl border border-zinc-800/80">
-          <button
-            onClick={() => setDrawMode("free")}
-            className={`px-3 py-1 text-xs rounded-lg font-semibold transition-all ${
-              drawMode === "free"
-                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25 scale-105"
-                : "text-zinc-400 hover:text-zinc-200"
-            }`}
-          >
-            Free Draw
-          </button>
-          <button
-            onClick={() => setDrawMode("smart")}
-            className={`px-3 py-1 text-xs rounded-lg font-semibold transition-all ${
-              drawMode === "smart"
-                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25 scale-105"
-                : "text-zinc-400 hover:text-zinc-200"
-            }`}
-          >
-            Smart Writing ✍️
-          </button>
-          <button
-            onClick={() => setDrawMode("sketch")}
-            className={`px-3 py-1 text-xs rounded-lg font-semibold transition-all ${
-              drawMode === "sketch"
-                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25 scale-105"
-                : "text-zinc-400 hover:text-zinc-200"
-            }`}
-          >
-            Sketch Recognition 📐
-          </button>
-          <button
-            onClick={() => {
-              setDrawMode("hero");
-              particleEngineRef.current.clear();
-              projectileSystemRef.current.clear();
-              chargeLevelRef.current = 0;
-            }}
-            className={`px-3 py-1 text-xs rounded-lg font-semibold transition-all flex items-center gap-1 ${
-              drawMode === "hero"
-                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25 scale-105"
-                : "text-zinc-400 hover:text-zinc-200"
-            }`}
-          >
-            ⭐ Hero Mode
-          </button>
-          <button
-            onClick={() => setDrawMode("build")}
-            className={`px-3 py-1 text-xs rounded-lg font-semibold transition-all flex items-center gap-1 ${
-              drawMode === "build"
-                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25 scale-105"
-                : "text-zinc-400 hover:text-zinc-200"
-            }`}
-          >
-            Spatial Build 🧱
-          </button>
-          <button
-            onClick={() => setDrawMode("engineering")}
-            className={`px-3 py-1 text-xs rounded-lg font-semibold transition-all flex items-center gap-1 ${
-              drawMode === "engineering"
-                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25 scale-105"
-                : "text-zinc-400 hover:text-zinc-200"
-            }`}
-          >
-            Engineering Studio 🏗
-          </button>
+        {/* Mode Selector Cards / Pills */}
+        <div className="flex items-center gap-1 bg-white/[0.04] p-1 rounded-xl border border-white/5">
+          {(["free", "smart", "sketch", "hero", "build", "engineering"] as const).map((mode) => {
+            const modeLabels = {
+              free: { name: "Free Draw", icon: "🎨" },
+              smart: { name: "Air Write", icon: "✍️" },
+              sketch: { name: "Recognition", icon: "📐" },
+              hero: { name: "Hero VFX", icon: "⚡" },
+              build: { name: "Spatial Voxel", icon: "🧱" },
+              engineering: { name: "Engineering", icon: "🏗️" }
+            };
+            const active = drawMode === mode;
+            return (
+              <button
+                key={mode}
+                onClick={() => changeModeWithSound(mode)}
+                onMouseEnter={() => SoundFX.playHover()}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 active:scale-95 ${
+                  active
+                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25 scale-105"
+                    : "text-zinc-400 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <span>{modeLabels[mode].icon}</span>
+                <span>{modeLabels[mode].name}</span>
+              </button>
+            );
+          })}
         </div>
 
-        <div className="h-5 w-[1px] bg-zinc-800/80" />
-
-        {/* Group 2: Hand Selectors */}
-        <div className="flex items-center gap-1 bg-zinc-950/65 p-1 rounded-xl border border-zinc-850/80">
+        {/* Hand Selector Pills */}
+        <div className="flex items-center gap-1 bg-white/[0.04] p-1 rounded-xl border border-white/5">
           <button
-            onClick={() => changeHandMode("right")}
+            onClick={() => { SoundFX.playClick(); changeHandMode("right"); }}
+            onMouseEnter={() => SoundFX.playHover()}
             className={`px-2 py-1 text-[11px] rounded-lg font-medium transition-all ${
-              handMode === "right"
-                ? "bg-indigo-600 text-white shadow-md"
-                : "text-zinc-400 hover:text-zinc-200"
+              handMode === "right" ? "bg-indigo-600 text-white shadow-md font-bold" : "text-zinc-400 hover:text-white"
             }`}
           >
-            Right Hand
+            Right
           </button>
           <button
-            onClick={() => changeHandMode("left")}
+            onClick={() => { SoundFX.playClick(); changeHandMode("left"); }}
+            onMouseEnter={() => SoundFX.playHover()}
             className={`px-2 py-1 text-[11px] rounded-lg font-medium transition-all ${
-              handMode === "left"
-                ? "bg-indigo-600 text-white shadow-md"
-                : "text-zinc-400 hover:text-zinc-200"
+              handMode === "left" ? "bg-indigo-600 text-white shadow-md font-bold" : "text-zinc-400 hover:text-white"
             }`}
           >
-            Left Hand
+            Left
           </button>
           <button
-            onClick={() => changeHandMode("auto")}
+            onClick={() => { SoundFX.playClick(); changeHandMode("auto"); }}
+            onMouseEnter={() => SoundFX.playHover()}
             className={`px-2 py-1 text-[11px] rounded-lg font-medium transition-all ${
-              handMode === "auto"
-                ? "bg-indigo-600 text-white shadow-md"
-                : "text-zinc-400 hover:text-zinc-200"
+              handMode === "auto" ? "bg-indigo-600 text-white shadow-md font-bold" : "text-zinc-400 hover:text-white"
             }`}
           >
-            Auto Detect
+            Auto
           </button>
         </div>
 
-        <div className="h-5 w-[1px] bg-zinc-800/80" />
-
-        {/* Group 3: History Commands */}
-        <div className="flex items-center gap-1">
+        {/* Header Right Tools: Onboarding, Settings & Dev Toggle */}
+        <div className="flex items-center gap-2 pl-2 border-l border-white/10">
           <button
-            onClick={handleUndo}
-            disabled={undoDisabled}
-            className="p-2 rounded-xl text-zinc-300 hover:bg-zinc-800 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-all"
-            title="Undo"
+            onClick={() => { SoundFX.playClick(); setShowOnboarding(true); }}
+            onMouseEnter={() => SoundFX.playHover()}
+            className="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/10 transition-all"
+            title="Spatial Tutorial & Hints"
           >
-            <Undo2 size={15} />
+            <Info size={16} />
           </button>
-
           <button
-            onClick={handleRedo}
-            disabled={redoDisabled}
-            className="p-2 rounded-xl text-zinc-300 hover:bg-zinc-800 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-all"
-            title="Redo"
+            onClick={() => { SoundFX.playClick(); toggleDevMode(!devMode); }}
+            onMouseEnter={() => SoundFX.playHover()}
+            className={`p-2 rounded-xl transition-all ${devMode ? "bg-indigo-600/30 text-indigo-400 border border-indigo-500/40" : "text-zinc-400 hover:text-white hover:bg-white/10"}`}
+            title="Toggle Developer Telemetry"
           >
-            <Redo2 size={15} />
-          </button>
-
-          <button
-            onClick={clearCanvas}
-            className="p-2 rounded-xl text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-all"
-            title="Clear Canvas"
-          >
-            <Trash2 size={15} />
+            <Terminal size={16} />
           </button>
         </div>
-
-        <div className="h-5 w-[1px] bg-zinc-800/80" />
-
-        {/* Group 4: Export Options */}
-        <button
-          onClick={exportARSnapshot}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md active:scale-95"
-          title="Export Snap"
-        >
-          <Download size={14} />
-          <span>Export</span>
-        </button>
       </header>
+
+      {/* ONBOARDING MODAL OVERLAY */}
+      {showOnboarding && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xl animate-fade-in">
+          <div className="max-w-md w-full p-6 bg-zinc-950/90 border border-white/15 rounded-3xl shadow-2xl text-white space-y-5">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-sm">
+                  ✨
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold tracking-tight">VisionCanvas AR Onboarding</h3>
+                  <p className="text-xs text-zinc-400">Spatial computing gesture guide</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3.5 text-xs text-zinc-300">
+              <div className="flex items-start gap-3 p-3 bg-white/[0.04] rounded-2xl border border-white/5">
+                <span className="text-xl">☝️</span>
+                <div>
+                  <h4 className="font-bold text-white mb-0.5">Air Pen Writing</h4>
+                  <p className="text-zinc-400">Extend your index finger forward to point and draw in mid-air with sub-16ms latency.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 p-3 bg-white/[0.04] rounded-2xl border border-white/5">
+                <span className="text-xl">🤏</span>
+                <div>
+                  <h4 className="font-bold text-white mb-0.5">Pinch Interaction</h4>
+                  <p className="text-zinc-400">Bring index and thumb tips together to trigger drawing, voxel placement, and power charging.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 p-3 bg-white/[0.04] rounded-2xl border border-white/5">
+                <span className="text-xl">💥</span>
+                <div>
+                  <h4 className="font-bold text-white mb-0.5">Hero Mode Unleash</h4>
+                  <p className="text-zinc-400">Pinch both hands to ignite energy cables, then thrust forward to unleash high-speed projectiles.</p>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={completeOnboarding}
+              className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs rounded-2xl shadow-lg shadow-indigo-500/30 transition-all active:scale-95"
+            >
+              Get Started
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 5. Left Floating Panels: Drawing Tools */}
       {drawMode !== "hero" && (
@@ -1788,6 +1797,42 @@ export default function Home() {
             title="Place Text"
           >
             <Type size={18} />
+          </button>
+
+          <div className="h-[1px] w-full bg-white/10 my-0.5" />
+
+          <button
+            onClick={() => { SoundFX.playClick(); handleUndo(); }}
+            disabled={undoDisabled}
+            className="p-3 rounded-xl text-zinc-400 hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-all"
+            title="Undo"
+          >
+            <Undo2 size={18} />
+          </button>
+
+          <button
+            onClick={() => { SoundFX.playClick(); handleRedo(); }}
+            disabled={redoDisabled}
+            className="p-3 rounded-xl text-zinc-400 hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-all"
+            title="Redo"
+          >
+            <Redo2 size={18} />
+          </button>
+
+          <button
+            onClick={() => { SoundFX.playClick(); clearCanvas(); }}
+            className="p-3 rounded-xl text-rose-400 hover:bg-rose-500/20 hover:text-rose-300 transition-all"
+            title="Clear Canvas"
+          >
+            <Trash2 size={18} />
+          </button>
+
+          <button
+            onClick={() => { SoundFX.playClick(); exportARSnapshot(); }}
+            className="p-3 rounded-xl text-emerald-400 hover:bg-emerald-500/20 hover:text-emerald-300 transition-all"
+            title="Export AR Snapshot"
+          >
+            <Download size={18} />
           </button>
         </div>
       )}
@@ -2377,43 +2422,37 @@ export default function Home() {
         </div>
       )}
 
-      {/* 7. Bottom Status & Indicator Panels */}
-      <footer className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4 px-5 py-2 bg-zinc-900/75 backdrop-blur-md border border-zinc-700/50 rounded-2xl shadow-xl text-zinc-400 text-xs pointer-events-auto">
-        <div className="flex items-center gap-2">
+      {/* 7. BOTTOM CONTEXTUAL STATUS BAR (Ultra-minimal Apple Vision Pro & Raycast style floating pill) */}
+      <footer className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3.5 px-4.5 py-2 bg-zinc-950/85 border border-white/10 backdrop-blur-2xl rounded-2xl shadow-2xl text-xs text-zinc-300 pointer-events-auto">
+        <div className="flex items-center gap-2 font-semibold">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
-          <span ref={fpsRef} className="font-semibold text-zinc-200">
-            Computing FPS...
+          <span ref={fpsRef} className="text-zinc-200 text-xs font-mono">
+            60 FPS
           </span>
         </div>
         
-        <div className="h-3 w-[1px] bg-zinc-700/60" />
+        <div className="h-3 w-[1px] bg-white/10" />
 
-        <div className="flex items-center gap-1.5 font-mono text-[10px]">
-          <span className="text-zinc-500">Tool:</span>
-          <span className="text-indigo-400 font-semibold uppercase tracking-wider">{activeTool}</span>
+        <div className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-400">
+          <span>Tool:</span>
+          <span className="text-blue-400 font-bold uppercase tracking-wider">{activeTool}</span>
         </div>
 
-        <div className="h-3 w-[1px] bg-zinc-700/60" />
+        <div className="h-3 w-[1px] bg-white/10" />
 
-        <div className="flex items-center gap-1.5 font-mono text-[10px]">
-          <span className="text-zinc-500">Drawing Hand:</span>
-          <span ref={statusBarHandRef} className="text-indigo-400 font-semibold uppercase tracking-wider">Right</span>
+        <div className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-400">
+          <span>Gesture:</span>
+          <span ref={pinchStatusRef} className="text-indigo-300 font-bold">Air Pen ☝️ / Pinch 🤏</span>
         </div>
 
-        <div className="h-3 w-[1px] bg-zinc-700/60" />
+        <div className="h-3 w-[1px] bg-white/10" />
 
-        <div className="flex items-center gap-1.5 font-mono text-[10px]">
-          <span className="text-zinc-500">Left Hand Gesture:</span>
-          <span ref={gestureRef} className="text-rose-400 font-semibold uppercase tracking-wider">None</span>
-        </div>
-
-        <div className="h-3 w-[1px] bg-zinc-700/60" />
-
-        <div className="text-[10px] text-zinc-300">
-          <span ref={pinchStatusRef}>Pinch Fingers to Draw</span>
+        <div className="flex items-center gap-1.5 text-[11px]">
+          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+          <span className="text-zinc-300 font-medium">Tracking 100%</span>
         </div>
       </footer>
     </main>
