@@ -1,39 +1,24 @@
-# VisionCanvas AR | Single Shared Core Stroke Engine Architecture Report
+# VisionCanvas AR | Real-Time Incremental Free Draw Rendering Fix Report
 
-All stroke processing across **Free Draw**, **Smart Writing**, **Sketch Recognition**, and **Engineering Studio** has been centralized into a single shared `/core` Stroke Engine architecture.
-
----
-
-## 🏛️ Core Stroke Architecture Diagram
-
-```mermaid
-graph TD
-    M1[Free Draw] & M2[Smart Writing] & M3[Sketch Recognition] & M4[Engineering Studio Annotations] --> API[CoreStrokeEngine API: beginStroke, addPoint, endStroke]
-    API --> SF[StrokeFilters: Kalman2D & One Euro Filter]
-    SF --> VP[VirtualPen: Spring Follower k=580, c=38]
-    VP --> SS[StrokeSpline: Uniform 2.5px Resampling & Catmull-Rom]
-    SS --> BM[BrushManager: Presets Neon, Marker, Pencil, Calligraphy, Glow, Engineering]
-    BM --> SH[StrokeHistory: Undo & Redo Stack]
-    SH --> SE[StrokeExport: Serialization & Snapshot Export]
-```
+Free Draw stroke rendering in **VisionCanvas AR** has been updated to render live, incremental 60 FPS feedback every `requestAnimationFrame` while drawing.
 
 ---
 
-## 📁 Modular Directory Structure (`apps/web/src/services/core`)
+## 🔍 Root Cause Analysis & Fix Summary
 
-| Module File | Purpose & Responsibilities |
-| :--- | :--- |
-| **`StrokeEngine.ts`** | Central controller exposing clean API: `beginStroke()`, `addPoint()`, `endStroke()`, `undo()`, `redo()`, `clear()`, `exportJSON()`. |
-| **`StrokeFilters.ts`** | Dual-pass Kalman 2D and One Euro filtering for gesture tremor removal. |
-| **`StrokeSpline.ts`** | $2.5\text{px}$ uniform distance point resampling and Catmull-Rom cubic spline interpolation. |
-| **`BrushManager.ts`** | Central brush presets (`Neon`, `Marker`, `Pencil`, `Calligraphy`, `Glow`, `Engineering`, `Highlighter`). |
-| **`StrokeHistory.ts`** | Centralized Undo & Redo history stack. |
-| **`StrokeExport.ts`** | JSON stroke serialization & PNG snapshot download handler. |
+### 1. Root Cause
+*   **Preview Array Truncation Bug**: In `DigitalInkEngine.ts`, active stroke preview generation previously sliced a fixed 15-point tail buffer (`previewPoints.slice(0, staticHeadCount)`). As the stroke grew longer, the static head calculation locked `previewPoints` to a maximum length of ~15 points, truncating the beginning of active strokes during live drawing.
+*   **Double Catmull-Rom Evaluation**: Free Draw mode fell through to a secondary Catmull-Rom spline loop in `Renderer.drawStroke`, attempting to spline points that were already splined.
+
+### 2. Implementation Fixes
+*   **Continuous Incremental Spline Generation (`DigitalInkEngine.ts`)**: `previewPoints` now continuously resamples and splines the complete in-progress raw points array (`updatedRaw`) on every frame update (`addPoint`).
+*   **Unified Digital Ink Painting (`DrawingPipeline.ts`)**: Updated `Renderer.drawStroke` to route all pen tool strokes (`stroke.tool === "pen"`) through `BrushRenderer.renderInkStroke`.
+*   **Zero-Lag 60 FPS Feedback**: `Renderer.renderFrame` paints `activeStroke` (`currentStroke`) live on top of the cached offscreen canvas every `requestAnimationFrame`, rendering both completed strokes and the active in-progress stroke without waiting for stroke completion.
 
 ---
 
 ## 🚀 GitHub Repository Deployment Status
 *   **Repository**: **[github.com/mahitss/Canvas_Air](https://github.com/mahitss/Canvas_Air.git)**
 *   **Branch**: `main`
-*   **Latest Commit**: `35b9d29` - *refactor: Create single unified /core StrokeEngine architecture shared across all drawing modes*
-*   **Monorepo Build**: **30 / 30 packages compiled in 36.0s with 0 errors**.
+*   **Latest Commit**: `e4b9131` - *fix: Enable real-time incremental 60 FPS stroke rendering in Free Draw*
+*   **Monorepo Build**: **30 / 30 packages compiled in 1m7s with 0 errors**.

@@ -20,7 +20,9 @@ import {
   Settings,
   Info,
   Terminal,
-  Activity
+  Activity,
+  Box,
+  Layers
 } from "lucide-react";
 import {
   CameraManager,
@@ -310,9 +312,10 @@ export default function Home() {
 
   const [latencyPrediction, setLatencyPrediction] = useState(true); // Prediction enabled checkbox
 
-  // Collapsible Settings Accordion Sections
+  // Collapsible Right Settings Panel State (collapsed by default for clean AR view)
+  const [rightPanelOpen, setRightPanelOpen] = useState(false);
   const [brushExpanded, setBrushExpanded] = useState(true);
-  const [aiExpanded, setAiExpanded] = useState(true);
+  const [aiExpanded, setAiExpanded] = useState(false);
   const [devExpanded, setDevExpanded] = useState(false);
 
   // AI handwriting settings variables
@@ -1724,84 +1727,121 @@ export default function Home() {
         </div>
       )}
 
-      {/* 5. Left Floating Panels: Drawing Tools */}
+      {/* 5. Left Floating Panels: Context-Aware Workspace Dock */}
       {drawMode !== "hero" && (
         <div className="absolute left-6 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2 p-2 bg-zinc-900/70 backdrop-blur-md border border-zinc-700/50 rounded-2xl shadow-2xl">
           <div className="text-[10px] text-center text-zinc-500 font-semibold uppercase tracking-wider mb-1">
             Tools
           </div>
           
-          <button
-            onClick={() => setActiveTool("pen")}
-            className={`p-3 rounded-xl transition-all ${
-              activeTool === "pen"
-                ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/30"
-                : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
-            }`}
-            title="Freehand Pen"
-          >
-            <PenTool size={18} />
-          </button>
+          {drawMode === "build" ? (
+            <>
+              {/* Spatial Build Voxel Tools */}
+              <button
+                onClick={() => setActiveTool("pen")}
+                className="p-3 rounded-xl bg-indigo-600 text-white shadow-md shadow-indigo-500/30"
+                title="Voxel Block (Cube)"
+              >
+                <Box size={18} />
+              </button>
+            </>
+          ) : drawMode === "engineering" ? (
+            <>
+              {/* Engineering Studio CAD Component Tools */}
+              {EngineeringStudioEngine.CATALOG
+                .filter(comp => comp.domain === engineeringEngineRef.current.activeDomain)
+                .slice(0, 5)
+                .map((comp) => (
+                  <button
+                    key={comp.id}
+                    onClick={() => setActiveCadType(comp.type)}
+                    className={`p-3 rounded-xl transition-all ${
+                      activeCadType === comp.type
+                        ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/30 scale-105"
+                        : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                    }`}
+                    title={`Place ${comp.name}`}
+                  >
+                    <Layers size={18} />
+                  </button>
+                ))}
+            </>
+          ) : (
+            <>
+              {/* Air Drawing Tools */}
+              <button
+                onClick={() => setActiveTool("pen")}
+                className={`p-3 rounded-xl transition-all ${
+                  activeTool === "pen"
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/30"
+                    : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                }`}
+                title="Freehand Pen"
+              >
+                <PenTool size={18} />
+              </button>
 
-          <button
-            onClick={() => setActiveTool("eraser")}
-            className={`p-3 rounded-xl transition-all ${
-              activeTool === "eraser"
-                ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/30"
-                : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
-            }`}
-            title="Eraser"
-          >
-            <Eraser size={18} />
-          </button>
+              <button
+                onClick={() => setActiveTool("eraser")}
+                className={`p-3 rounded-xl transition-all ${
+                  activeTool === "eraser"
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/30"
+                    : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                }`}
+                title="Eraser"
+              >
+                <Eraser size={18} />
+              </button>
 
-          <button
-            onClick={() => setActiveTool("line")}
-            className={`p-3 rounded-xl transition-all ${
-              activeTool === "line"
-                ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/30"
-                : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
-            }`}
-            title="Straight Line"
-          >
-            <Minus size={18} className="rotate-45" />
-          </button>
+              <button
+                onClick={() => setActiveTool("line")}
+                className={`p-3 rounded-xl transition-all ${
+                  activeTool === "line"
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/30"
+                    : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                }`}
+                title="Straight Line"
+              >
+                <Minus size={18} className="rotate-45" />
+              </button>
 
-          <button
-            onClick={() => setActiveTool("rect")}
-            className={`p-3 rounded-xl transition-all ${
-              activeTool === "rect"
-                ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/30"
-                : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
-            }`}
-            title="Rectangle Shape"
-          >
-            <Square size={18} />
-          </button>
+              <button
+                onClick={() => setActiveTool("rect")}
+                className={`p-3 rounded-xl transition-all ${
+                  activeTool === "rect"
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/30"
+                    : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                }`}
+                title="Rectangle Shape"
+              >
+                <Square size={18} />
+              </button>
 
-          <button
-            onClick={() => setActiveTool("circle")}
-            className={`p-3 rounded-xl transition-all ${
-              activeTool === "circle"
-                ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/30"
-                : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
-            }`}
-            title="Circle Shape"
-          >
-            <Circle size={18} />
-          </button>
+              <button
+                onClick={() => setActiveTool("circle")}
+                className={`p-3 rounded-xl transition-all ${
+                  activeTool === "circle"
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/30"
+                    : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                }`}
+                title="Circle Shape"
+              >
+                <Circle size={18} />
+              </button>
 
-          <button
-            onClick={() => setActiveTool("text")}
-            className={`p-3 rounded-xl transition-all ${
-              activeTool === "text"
-                ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/30"
-                : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
-            }`}
-            title="Place Text"
-          >
-            <Type size={18} />
-          </button>
+              <button
+                onClick={() => setActiveTool("text")}
+                className={`p-3 rounded-xl transition-all ${
+                  activeTool === "text"
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/30"
+                    : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                }`}
+                title="Place Text"
+              >
+                <Type size={18} />
+              </button>
+            </>
+          )}
 
           <div className="h-[1px] w-full bg-white/10 my-0.5" />
 
@@ -1838,12 +1878,24 @@ export default function Home() {
           >
             <Download size={18} />
           </button>
+
+          <div className="h-[1px] w-full bg-white/10 my-0.5" />
+
+          <button
+            onClick={() => { SoundFX.playClick(); setRightPanelOpen(!rightPanelOpen); }}
+            className={`p-3 rounded-xl transition-all ${
+              rightPanelOpen ? "bg-indigo-600/40 text-indigo-300 border border-indigo-500/50" : "text-zinc-400 hover:bg-white/10 hover:text-white"
+            }`}
+            title="Toggle Settings Panel"
+          >
+            <Settings size={18} />
+          </button>
         </div>
       )}
 
-      {/* 6. Right Floating Panels: Collapsible Brush Settings, AI Configuration, and Developer Tools */}
-      {drawMode !== "hero" && (
-        <div className="absolute right-6 top-1/2 -translate-y-1/2 z-40 w-64 p-3 bg-zinc-900/70 backdrop-blur-md border border-zinc-700/50 rounded-2xl shadow-2xl text-white space-y-3.5 max-h-[85vh] overflow-y-auto custom-scrollbar">
+      {/* 6. Right Floating Panels: Collapsible Brush Settings, AI Configuration, and Developer Tools (Collapsed by Default) */}
+      {drawMode !== "hero" && rightPanelOpen && (
+        <div className="absolute right-6 top-1/2 -translate-y-1/2 z-40 w-64 p-3 bg-zinc-900/70 backdrop-blur-md border border-zinc-700/50 rounded-2xl shadow-2xl text-white space-y-3.5 max-h-[85vh] overflow-y-auto custom-scrollbar animate-fade-in">
           
           {/* SECTION 1: BRUSH SETTINGS */}
           <div className="border-b border-zinc-800/80 pb-2">

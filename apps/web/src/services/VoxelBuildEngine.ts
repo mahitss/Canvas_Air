@@ -127,30 +127,42 @@ export class VoxelBuildEngine {
 
     ctx.save();
 
-    // 1. Draw Subtle Glassmorphic Spatial Grid Guidelines
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
-    ctx.lineWidth = 1.0;
-    ctx.setLineDash([4, 4]);
+    // 1. Draw Ultra-Subtle Glassmorphic Spatial Grid Guidelines (5% idle opacity, 10% 5th lines)
+    const isPlacing = cursorGrid !== null;
+    const gridAlpha = isPlacing ? 0.12 : 0.05;
 
     const gridCols = Math.floor(width / s);
     const gridRows = Math.floor(height / s);
 
+    let colIdx = 0;
     for (let col = -Math.floor(gridCols / 2); col <= Math.floor(gridCols / 2); col++) {
+      colIdx++;
+      const isFifth = colIdx % 5 === 0;
       const x = originX + col * s;
+      ctx.strokeStyle = isFifth
+        ? `rgba(255, 255, 255, ${gridAlpha * 2.0})`
+        : `rgba(255, 255, 255, ${gridAlpha})`;
+      ctx.lineWidth = isFifth ? 0.8 : 0.5;
       ctx.beginPath();
       ctx.moveTo(x, 0);
       ctx.lineTo(x, height);
       ctx.stroke();
     }
 
+    let rowIdx = 0;
     for (let row = -Math.floor(gridRows / 2); row <= Math.floor(gridRows / 2); row++) {
+      rowIdx++;
+      const isFifth = rowIdx % 5 === 0;
       const y = originY + row * s;
+      ctx.strokeStyle = isFifth
+        ? `rgba(255, 255, 255, ${gridAlpha * 2.0})`
+        : `rgba(255, 255, 255, ${gridAlpha})`;
+      ctx.lineWidth = isFifth ? 0.8 : 0.5;
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(width, y);
       ctx.stroke();
     }
-    ctx.setLineDash([]);
 
     // Sort blocks by depth for proper isometric rendering order
     const sortedBlocks = [...this.blocks].sort((a, b) => (a.gridY - b.gridY) || (a.gridX - b.gridX));
