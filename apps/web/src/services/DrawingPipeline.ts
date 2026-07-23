@@ -739,8 +739,8 @@ export class Renderer {
 
     ctx.save();
 
-    // Custom Digital Ink rendering for Smart Writing Mode
-    if (stroke.isSmartWriting && stroke.tool === "pen") {
+    // Custom Digital Ink rendering for Pen (Free Draw & Smart Writing)
+    if (stroke.tool === "pen") {
       BrushRenderer.renderInkStroke(
         ctx,
         stroke.points as any,
@@ -777,7 +777,7 @@ export class Renderer {
         ctx.shadowBlur = stroke.glowIntensity * 1.5;
       }
       ctx.fillText(stroke.text || "Air Draw", startPt.x, startPt.y);
-    } else if (stroke.tool === "pen" || stroke.tool === "eraser") {
+    } else if (stroke.tool === "eraser") {
       if (stroke.points.length < 2) {
         if (stroke.points.length === 1) {
           ctx.beginPath();

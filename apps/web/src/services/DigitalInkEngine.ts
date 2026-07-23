@@ -658,26 +658,19 @@ export class DigitalInkEngine {
     // 2. Append filtered point
     this.strokeBuffer.addPoint(point);
 
-    // 3. Fast Incremental Preview Generation (avoid full-stroke re-splining every frame!)
+    // 3. Real-time Incremental Preview Generation for 60 FPS continuous live feedback
     const updatedRaw = this.strokeBuffer.getPoints();
     const len = updatedRaw.length;
 
     if (len <= 2) {
       this.previewPoints = [...updatedRaw];
     } else {
-      // Re-spline only the active tail segment (last 5 points) to maintain 60 FPS
-      const tailStartIndex = Math.max(0, len - 5);
-      const tailSegment = updatedRaw.slice(tailStartIndex);
-      const resampledTail = PointResampler.resample(tailSegment, 4.0);
-      const splineTail = SplineGenerator.generateCatmullRomSpline(resampledTail, 3);
-
-      const staticHeadCount = Math.max(0, this.previewPoints.length - splineTail.length);
-      const staticHead = this.previewPoints.slice(0, staticHeadCount);
-      const combined = staticHead.concat(splineTail);
-      if (combined.length > 0) {
-        combined[combined.length - 1] = { ...point };
+      const resampled = PointResampler.resample(updatedRaw, 3.0);
+      const spline = SplineGenerator.generateCatmullRomSpline(resampled, 3);
+      if (spline.length > 0) {
+        spline[spline.length - 1] = { ...point };
       }
-      this.previewPoints = combined;
+      this.previewPoints = spline;
     }
   }
 

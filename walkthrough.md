@@ -1,37 +1,39 @@
-# VisionCanvas AR | Apple Pencil / Procreate Quality Digital Ink Engine Report
+# VisionCanvas AR | Single Shared Core Stroke Engine Architecture Report
 
-Free Draw & Air Writing mode in **VisionCanvas AR** have been upgraded with an **Apple Pencil & Procreate Class Digital Ink Engine** featuring Virtual Pen spring follower physics and uniform Catmull-Rom distance resampling.
+All stroke processing across **Free Draw**, **Smart Writing**, **Sketch Recognition**, and **Engineering Studio** has been centralized into a single shared `/core` Stroke Engine architecture.
 
 ---
 
-## 🎨 New Procreate / Apple Pencil Stroke Pipeline
+## 🏛️ Core Stroke Architecture Diagram
 
 ```mermaid
 graph TD
-    MP[MediaPipe Fingertip Tracking] --> FLT[1-Euro & Kalman Filters]
-    FLT --> VP[Virtual Pen: Spring Follower k=580, c=38]
-    VP --> RS[Point Resampler: Uniform 2.5px Spatial Step]
-    RS --> CR[Catmull-Rom Spline Curve Generation]
-    CR --> AS[Velocity-Adaptive Stroke Width]
-    AS --> REN[Offscreen Layer Cache: Round End Caps & Soft Glow]
+    M1[Free Draw] & M2[Smart Writing] & M3[Sketch Recognition] & M4[Engineering Studio Annotations] --> API[CoreStrokeEngine API: beginStroke, addPoint, endStroke]
+    API --> SF[StrokeFilters: Kalman2D & One Euro Filter]
+    SF --> VP[VirtualPen: Spring Follower k=580, c=38]
+    VP --> SS[StrokeSpline: Uniform 2.5px Resampling & Catmull-Rom]
+    SS --> BM[BrushManager: Presets Neon, Marker, Pencil, Calligraphy, Glow, Engineering]
+    BM --> SH[StrokeHistory: Undo & Redo Stack]
+    SH --> SE[StrokeExport: Serialization & Snapshot Export]
 ```
 
-### 1. Virtual Pen Spring Physics ($k=580.0, c=38.0$)
-*   **Virtual Pen Dynamics**: The Virtual Pen follows fingertip movement via a critically-damped spring-damper system ($k=580.0, c=38.0, m=1.0$), eliminating natural hand tremors and jitter.
-*   **Sub-16ms Perceived Latency**: Produces smooth, continuous, stable ink flow without visible micro-zig-zags.
+---
 
-### 2. Uniform Distance Resampling ($2.5\text{px}$)
-*   **Frame-Rate Independence**: Points are resampled at uniform $2.5\text{px}$ spatial intervals along the stroke trajectory.
-*   **Continuous Density**: Eliminates point clustering when writing slowly and point gaps when drawing fast cursive words (`hello`, `VisionCanvas`, `Spatial Computing`).
+## 📁 Modular Directory Structure (`apps/web/src/services/core`)
 
-### 3. Catmull-Rom Spline Curves & Round End Caps
-*   **Cubic Interpolation**: Evaluates Catmull-Rom spline curves between resampled points.
-*   **Round Caps & Joins**: Rendered with `lineCap = "round"` and `lineJoin = "round"` for smooth digital ink rendering.
+| Module File | Purpose & Responsibilities |
+| :--- | :--- |
+| **`StrokeEngine.ts`** | Central controller exposing clean API: `beginStroke()`, `addPoint()`, `endStroke()`, `undo()`, `redo()`, `clear()`, `exportJSON()`. |
+| **`StrokeFilters.ts`** | Dual-pass Kalman 2D and One Euro filtering for gesture tremor removal. |
+| **`StrokeSpline.ts`** | $2.5\text{px}$ uniform distance point resampling and Catmull-Rom cubic spline interpolation. |
+| **`BrushManager.ts`** | Central brush presets (`Neon`, `Marker`, `Pencil`, `Calligraphy`, `Glow`, `Engineering`, `Highlighter`). |
+| **`StrokeHistory.ts`** | Centralized Undo & Redo history stack. |
+| **`StrokeExport.ts`** | JSON stroke serialization & PNG snapshot download handler. |
 
 ---
 
 ## 🚀 GitHub Repository Deployment Status
 *   **Repository**: **[github.com/mahitss/Canvas_Air](https://github.com/mahitss/Canvas_Air.git)**
 *   **Branch**: `main`
-*   **Latest Commit**: `20f5416` - *feat: Upgrade Free Draw & Air Writing stroke engine with Apple Pencil / Procreate Virtual Pen & Catmull-Rom resampling pipeline*
-*   **Monorepo Build**: **30 / 30 packages compiled in 43.3s with 0 errors**.
+*   **Latest Commit**: `35b9d29` - *refactor: Create single unified /core StrokeEngine architecture shared across all drawing modes*
+*   **Monorepo Build**: **30 / 30 packages compiled in 36.0s with 0 errors**.
